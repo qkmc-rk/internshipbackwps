@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -33,6 +35,7 @@ public class Student implements Serializable {
     private String stuno;
 
     @ApiModelProperty(value = "密码")
+    @JsonIgnore
     private String password;
 
     @ApiModelProperty(value = "姓名")
