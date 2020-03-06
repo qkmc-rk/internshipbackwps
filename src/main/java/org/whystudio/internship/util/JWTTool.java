@@ -27,7 +27,7 @@ public class JWTTool {
     /**
      * 通过token找到用户
      * @param token JWT令牌
-     * @return 用户ID
+     * @return 用户username
      */
     public static String findToken(String token){
         return RedisTool.getInstance().readDataFromRedis(token);

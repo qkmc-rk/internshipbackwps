@@ -67,9 +67,13 @@ public class AuthController extends BaseController{
 
     @PostMapping("/password")
     @ApiOperation(value = "找回密码接口", notes = "传入身份证, 账号, 新密码, 以及type(student,teacher)返回找回密码成功与否")
-    @Deprecated
-    public JsonResult findPassword(){
-        return null;
+    public JsonResult findPassword(@RequestParam String idcard,
+                                   @RequestParam String username,
+                                   @RequestParam String password,
+                                   @RequestParam String type,
+                                   @RequestParam String verifyCode,
+                                   HttpServletRequest request){
+        return userService.findPassword(idcard, username, password, type, verifyCode, IpTool.getIpAddr(request));
     }
 
     // ----- private methods ------ //
