@@ -2,7 +2,6 @@ package org.whystudio.internship.controller;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
-import org.whystudio.internship.entity.Student;
 import org.whystudio.internship.entity.Teacher;
 import org.whystudio.internship.vo.JsonResult;
 
