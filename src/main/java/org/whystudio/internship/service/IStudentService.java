@@ -1,9 +1,6 @@
 package org.whystudio.internship.service;
 
-import org.springframework.util.StringUtils;
-import org.whystudio.internship.entity.Corporation;
-import org.whystudio.internship.entity.Report;
-import org.whystudio.internship.entity.Reportdate;
+
 import org.whystudio.internship.entity.Student;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.whystudio.internship.vo.JsonResult;
