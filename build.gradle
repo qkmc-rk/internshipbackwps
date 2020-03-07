@@ -1,7 +1,7 @@
 plugins {
-	id 'org.springframework.boot' version '2.1.13.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.1.13.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
 }
 
 group = 'org.whystudio'
@@ -9,50 +9,53 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenLocal()
-	maven {url 'http://maven.aliyun.com/nexus/content/groups/public'}
-	mavenCentral()
+    mavenLocal()
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	implementation 'org.springframework.boot:spring-boot-starter-quartz'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	//implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.1'
-	
-	implementation 'com.qiniu:qiniu-java-sdk:7.2.11'
-	
-	//swagger与swagger-ui依赖引入.
-	implementation 'io.springfox:springfox-swagger2:2.7.0'
-	implementation 'io.springfox:springfox-swagger-ui:2.7.0'
-	implementation 'com.alibaba:fastjson:1.2.60'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    //implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.1'
 
-	// md5依赖
-	implementation 'org.apache.commons:commons-collections4:4.1'
-	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'
-	//低于4.3版本的httpClient报错java.lang.NoClassDefFoundError
-	implementation 'org.apache.httpcomponents:httpclient:4.3.3'
+    implementation 'com.qiniu:qiniu-java-sdk:7.2.28'
 
-	compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.3.1.tmp'
-	compile group: 'com.baomidou', name: 'mybatis-plus-generator', version: '3.3.1.tmp'
-	compile group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.0'
+    //swagger与swagger-ui依赖引入.
+    implementation 'io.springfox:springfox-swagger2:2.7.0'
+    implementation 'io.springfox:springfox-swagger-ui:2.7.0'
+    implementation 'com.alibaba:fastjson:1.2.60'
 
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'mysql:mysql-connector-java'
-	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // md5依赖
+    implementation 'org.apache.commons:commons-collections4:4.1'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'
+    //低于4.3版本的httpClient报错java.lang.NoClassDefFoundError
+    implementation 'org.apache.httpcomponents:httpclient:4.3.3'
+
+    //七牛云
+    compile group: 'com.qiniu', name: 'qiniu-java-sdk', version: '7.2.28'
+    compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.3.1.tmp'
+    compile group: 'com.baomidou', name: 'mybatis-plus-generator', version: '3.3.1.tmp'
+    compile group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.0'
+
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'mysql:mysql-connector-java'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
