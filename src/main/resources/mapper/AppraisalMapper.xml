@@ -7,20 +7,20 @@
     <update id="updateStudentContentByStuno">
         update appraisal
         <set>
-            <if test="content != null and content != ''">
-                content = #{content,jdbcType=VARCHAR},
+            <if test="appraisal.content != null and appraisal.content != ''">
+                appraisal.content = #{appraisal.content,jdbcType=VARCHAR},
             </if>
-            <if test="summary != null and summary != ''">
-                summary = #{summary,jdbcType=VARCHAR},
+            <if test="appraisal.summary != null and appraisal.summary != ''">
+                appraisal.summary = #{appraisal.summary,jdbcType=VARCHAR},
             </if>
-            <if test="corpOpinion != null and corpOpinion != ''">
-                corp_opinion = #{corpOpinion,jdbcType=VARCHAR},
+            <if test="appraisal.corpOpinion != null and appraisal.corpOpinion != ''">
+                appraisal.corp_opinion = #{appraisal.corpOpinion,jdbcType=VARCHAR},
             </if>
-            <if test="corpOpinion != null and corpOpinion != ''">
-                corp_teacher_opinion = #{corpTeacherOpinion,jdbcType=VARCHAR}
+            <if test="appraisal.corpTeacherOpinion != null and appraisal.corpTeacherOpinion != ''">
+                appraisal.corp_teacher_opinion = #{appraisal.corpTeacherOpinion,jdbcType=VARCHAR}
             </if>
         </set>
-        where stuno = #{stuno,jdbcType=VARCHAR}
+        where appraisal.stuno = #{appraisal.stuno,jdbcType=VARCHAR}
     </update>
 
 
