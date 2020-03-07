@@ -16,7 +16,7 @@
             <if test="corpOpinion != null and corpOpinion != ''">
                 corp_opinion = #{corpOpinion,jdbcType=VARCHAR},
             </if>
-            <if test="corpTeacherOpinion">
+            <if test="corpOpinion != null and corpOpinion != ''">
                 corp_teacher_opinion = #{corpTeacherOpinion,jdbcType=VARCHAR}
             </if>
         </set>

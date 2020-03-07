@@ -39,7 +39,7 @@ public class StudentController extends BaseController {
     }
 
     @PostMapping("/info")
-    @ApiOperation(value = "修改个人信息", notes = "传入需要更新的字段(age,phone,qq,wechat)")
+    @ApiOperation(value = "修改个人信息", notes = "传入需要更新的字段(age,phone,qq,wechat,potision)")
     public JsonResult modifyPersonalInfo(@RequestHeader String token, Student student) {
         return studentService.updatePersonalInfo(token, student);
     }
