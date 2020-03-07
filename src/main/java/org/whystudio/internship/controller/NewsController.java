@@ -3,6 +3,8 @@ package org.whystudio.internship.controller;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import org.whystudio.internship.service.INotificationService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 import org.whystudio.internship.vo.JsonResult;
 
 import javax.annotation.Resource;
@@ -12,6 +14,7 @@ import javax.annotation.Resource;
  * 公告信息查询控制器
  *
  */
+@Slf4j
 @RestController
 @RequestMapping("/news")
 public class NewsController extends BaseController {
