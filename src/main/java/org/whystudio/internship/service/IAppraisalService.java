@@ -2,6 +2,7 @@ package org.whystudio.internship.service;
 
 import org.whystudio.internship.entity.Appraisal;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.whystudio.internship.vo.JsonResult;
 
 /**
  * <p>
@@ -13,4 +14,20 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IAppraisalService extends IService<Appraisal> {
 
+    /**
+     * 学生获取鉴定表信息
+     *
+     * @param token :
+     * @return: org.whystudio.internship.vo.JsonResult
+     */
+    JsonResult getAppraisalInfo(String token);
+
+    /**
+     * 学生修改鉴定表
+     *
+     * @param token     :
+     * @param appraisal :
+     * @return: org.whystudio.internship.vo.JsonResult
+     */
+    JsonResult updateAppraisalInfo(String token, Appraisal appraisal);
 }

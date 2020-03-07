@@ -1,33 +1,36 @@
 package org.whystudio.internship.controller;
 
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.whystudio.internship.entity.Teacher;
+import org.whystudio.internship.service.ITeacherService;
 import org.whystudio.internship.vo.JsonResult;
 
 @RestController
 @RequestMapping("/teacher")
 public class TeacherController extends BaseController {
 
+    @Autowired
+    ITeacherService teacherService;
+
     @GetMapping("/info")
     @ApiOperation(value = "查询个人信息", notes = "查询教师的个人信息,若与学生端有重复代码,可通过base抽离")
-    @Deprecated
     public JsonResult personalInfo(@RequestHeader String token){
-        return null;
+        return teacherService.getPersonalInfo(token);
     }
 
     @PostMapping("/info")
     @ApiOperation(value = "修改个人信息", notes = "传入需要更新的字段即可, 非空字段进行修改,且注意某些特殊字段不能修改,且注意有的字段比如时间需要后台设置值")
-    @Deprecated
     public JsonResult modifyPersonalInfo(@RequestHeader String token, Teacher teacher){
-        return null;
+        return teacherService.updatePersonalInfo(token, teacher);
     }
 
     @GetMapping("/student")
-    @ApiOperation(value = "查询所有的我的学生", notes = "返回学生列表,列表中包含学生基础信息,报告册的填写情况和阶段,鉴定表的填写情况和阶段,这个方法适当复杂")
-    @Deprecated
+    @ApiOperation(value = "查询所有的我的学生", notes = "返回学生列表,列表中包含学生基础信息,报告册的填写情况和阶段,鉴定表的填写情况和阶段,这个方法适当复杂" +
+            "其中查询字段是bool型, 表示是否填写该阶段 1/0: reportStage1Summary, reportStage2Summary, appraisalContent, appraisalSummary通过这几个字段可以判断填写情况")
     public JsonResult listMyStudent(@RequestHeader String token){
-        return null;
+        return teacherService.getMyStudents(token);
     }
 
     @GetMapping("/student/condition")
@@ -46,6 +49,7 @@ public class TeacherController extends BaseController {
     @Deprecated
     public JsonResult studentReport(@RequestHeader String token,
                                     @PathVariable String stuno){
+
         return null;
     }
 

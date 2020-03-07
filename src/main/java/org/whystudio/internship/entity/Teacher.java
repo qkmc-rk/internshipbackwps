@@ -1,9 +1,13 @@
 package org.whystudio.internship.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,7 +26,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @ApiModel(value="Teacher对象", description="校内导师信息")
-public class Teacher implements Serializable {
+public class Teacher extends Model<Teacher> implements Serializable {
 
     private static final long serialVersionUID=1L;
 
@@ -30,9 +34,11 @@ public class Teacher implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "教职工号")
+    @TableField("teachno") // 练练手
     private String teachno;
 
     @ApiModelProperty(value = "密码")
+    @JsonIgnore
     private String password;
 
     @ApiModelProperty(value = "姓名")
@@ -61,4 +67,10 @@ public class Teacher implements Serializable {
 
     @ApiModelProperty(value = "状态1启用 0停用")
     private Boolean status;
+
+    // 非数据库字段 备注
+    //private transient String remark;
+    //private static String remark;   // static 不参与序列化
+    //@TableField(exist = false)   // 表示数据库中不存在此字段  这个就不会参与持久化
+    //private String remark;
 }
