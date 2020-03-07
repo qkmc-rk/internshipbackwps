@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * <p>
  * 实习企业信息表
- Mapper 接口
+ * Mapper 接口
  * </p>
  *
  * @author mrruan
@@ -15,5 +15,4 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 @Repository
 public interface CorporationMapper extends BaseMapper<Corporation> {
-
 }
