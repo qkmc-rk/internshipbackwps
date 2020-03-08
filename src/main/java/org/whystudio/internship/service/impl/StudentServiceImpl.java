@@ -75,35 +75,23 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         if (StringUtils.isNotBlank(stuno)) {
             Student oldStu = studentMapper.selectByStuno(stuno);
             if (null != oldStu) {
-                // 本接口不允许修改以下字段
-                student.setStuno(null);
-                student.setName(null);
-                student.setSex(null);
-                student.setCollege(null);
-                student.setCollegecode(null);
-                student.setCreated(null);
-                student.setModified(null);
-                student.setId(null);
-                student.setMajor(null);
-                student.setMajorcode(null);
-                student.setIdcard(null);
-                student.setStatus(null);
-                student.setPosition(null);
-                student.setCorp(null);
-                student.setPassword(null);
-                EntityUtil.update(student, oldStu);
-                studentMapper.updateById(student);
-                return ControllerUtil.getSuccessResultBySelf("修改成功");
+                if (StringUtils.isNotBlank(student.getWechat()) || StringUtils.isNotBlank(student.getQq()) ||
+                        null != student.getAge() || StringUtils.isNotBlank(student.getPosition()) ||
+                        StringUtils.isNotBlank(student.getPhone())) {
+                    student.setStuno(stuno);
+                    int flag = studentMapper.updateStudentInfo(student);
+                    if (flag > 0) {
+                        return ControllerUtil.getSuccessResultBySelf("修改成功");
+                    } else {
+                        return ControllerUtil.getFalseResultMsgBySelf("修改失败,可能数据不存在");
+                    }
+                } else {
+                    return ControllerUtil.getFalseResultMsgBySelf("必要参数缺失");
+                }
             }
         }
         return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
     }
-
-
-
-
-
-
 
 
 }

@@ -70,8 +70,8 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
             String corpTeacherOpinion = appraisal.getCorpTeacherOpinion();
             if (StringUtils.isNotBlank(content) || StringUtils.isNotBlank(summary) ||
                     StringUtils.isNotBlank(corpOpinion) || StringUtils.isNotBlank(corpTeacherOpinion)) {
-                int flag = appraisalMapper.updateStudentContentByStuno(stuno, content, summary,
-                        corpOpinion, corpTeacherOpinion);
+                appraisal.setStuno(stuno);
+                int flag = appraisalMapper.updateStudentContentByStuno(appraisal);
                 if (flag != 0) {
                     return ControllerUtil.getSuccessResultBySelf("更新成功");
                 } else {

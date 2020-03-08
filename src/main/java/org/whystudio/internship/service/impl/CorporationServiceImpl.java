@@ -2,12 +2,17 @@ package org.whystudio.internship.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.whystudio.internship.controller.ControllerUtil;
 import org.whystudio.internship.entity.Corporation;
+import org.whystudio.internship.entity.Student;
 import org.whystudio.internship.mapper.CorporationMapper;
+import org.whystudio.internship.mapper.StudentMapper;
 import org.whystudio.internship.service.ICorporationService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import org.whystudio.internship.service.IStudentService;
 import org.whystudio.internship.util.EntityUtil;
 import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.vo.JsonResult;
@@ -23,6 +28,10 @@ import org.whystudio.internship.vo.JsonResult;
  */
 @Service
 public class CorporationServiceImpl extends ServiceImpl<CorporationMapper, Corporation> implements ICorporationService {
+
+    @Autowired
+    IStudentService studentService;
+
     @Override
     public JsonResult getCorporationInfo(String token) {
         String stuno = JWTTool.findToken(token);
@@ -44,6 +53,7 @@ public class CorporationServiceImpl extends ServiceImpl<CorporationMapper, Corpo
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonResult updateCorporationInfo(String token, Corporation corporation) {
         String stuno = JWTTool.findToken(token);
         if (StringUtils.isNotBlank(stuno)) {
@@ -55,6 +65,12 @@ public class CorporationServiceImpl extends ServiceImpl<CorporationMapper, Corpo
                 corporation.setId(null);
                 corporation.setIschecked(null);
                 EntityUtil.update(corporation, oldCorp);
+                this.updateById(corporation);
+                // 同步更新学生信息的公司名称
+                if (StringUtils.isNotBlank(corporation.getCorpname())) {
+                    studentService.lambdaUpdate().set(Student::getCorp,
+                            corporation.getCorpname()).eq(Student::getStuno, stuno).update();
+                }
                 return ControllerUtil.getSuccessResultBySelf("修改成功");
             } else {
                 return ControllerUtil.getFalseResultMsgBySelf("记录不存在，查看后重试");

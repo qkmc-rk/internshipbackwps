@@ -55,4 +55,12 @@ public interface StudentMapper extends BaseMapper<Student> {
      */
     Map<String, Object> selectPersonalInfoByStuno(@Param("stuno") String stuno);
 
+    /**
+     * 学生修改qq，微信，电话号码，年龄，职位
+     *
+     * @param student :
+     * @return: int
+     */
+    int updateStudentInfo(@Param("stu") Student student);
+
 }

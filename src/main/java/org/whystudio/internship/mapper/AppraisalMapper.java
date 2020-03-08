@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import org.whystudio.internship.entity.Appraisal;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.whystudio.internship.entity.Student;
 
 /**
  * <p>
@@ -16,9 +17,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 @Repository
 public interface AppraisalMapper extends BaseMapper<Appraisal> {
-    int updateStudentContentByStuno(@Param("stuno") String stuno, @Param("content") String content,
-                                    @Param("summary") String summary, @Param("corpOpinion") String corpOpinion,
-                                    @Param("corpTeacherOpinion") String corpTeacherOpinion);
-
-
+    int updateStudentContentByStuno(@Param("appraisal") Appraisal appraisal);
 }

@@ -39,7 +39,7 @@ public class File implements Serializable {
     private String size;
 
     @ApiModelProperty(value = "上传时间")
-    private LocalDateTime update;
+    private LocalDateTime upload;
 
 
 }

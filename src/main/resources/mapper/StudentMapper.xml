@@ -25,4 +25,26 @@
         from student
         where stuno = #{stuno}
     </select>
+
+    <update id="updateStudentInfo">
+        update student
+        <set>
+            <if test="stu.qq != null and stu.qq != ''">
+                student.qq = #{stu.qq,jdbcType=VARCHAR},
+            </if>
+            <if test="stu.position != null and stu.position != ''">
+                student.position = #{stu.position,jdbcType=VARCHAR},
+            </if>
+            <if test="stu.age != null">
+                student.age = #{stu.age,jdbcType=INTEGER},
+            </if>
+            <if test="stu.wechat != null and stu.wechat != ''">
+                student.wechat = #{stu.wechat,jdbcType=VARCHAR},
+            </if>
+            <if test="stu.phone != null and stu.phone != ''">
+                student.phone = #{stu.phone,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where student.stuno = #{stu.stuno,jdbcType=VARCHAR}
+    </update>
 </mapper>
