@@ -2,6 +2,7 @@ package org.whystudio.internship;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,12 @@ public class InternshipApplicationTests {
 //		Student student = studentMapper.selectByStuno("123");
 //		System.out.println(student);
 
+	}
+
+	@Test
+	public void m(){
+		List<Student> list = iStudentService.lambdaQuery().eq(Student::getStuno, "201604252").list();
+		System.out.println(list == null?null:list.get(0));
 	}
 
 
