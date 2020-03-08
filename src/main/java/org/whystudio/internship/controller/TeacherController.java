@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.whystudio.internship.entity.Teacher;
+import org.whystudio.internship.service.IStudentService;
 import org.whystudio.internship.service.ITeacherService;
 import org.whystudio.internship.vo.JsonResult;
 
@@ -13,6 +14,9 @@ public class TeacherController extends BaseController {
 
     @Autowired
     ITeacherService teacherService;
+
+    @Autowired
+    IStudentService studentService;
 
     @GetMapping("/info")
     @ApiOperation(value = "查询个人信息", notes = "查询教师的个人信息,若与学生端有重复代码,可通过base抽离")
@@ -46,61 +50,55 @@ public class TeacherController extends BaseController {
 
     @GetMapping("/student/{stuno}/report")
     @ApiOperation(value = "获取某个学生的报告册", notes = "后台注意校验数据, 要包含时间等信息")
-    @Deprecated
     public JsonResult studentReport(@RequestHeader String token,
                                     @PathVariable String stuno){
+        return teacherService.myStudentReport(token, stuno);
 
-        return null;
     }
 
     @PostMapping("/student/{stuno}/report/stage1")
     @ApiOperation(value = "给学生的报告册填写第一阶段评价和打分", notes = "评价和打分")
-    @Deprecated
     public JsonResult evalStudentReport1(@RequestHeader String token,
                                         @PathVariable String stuno,
                                         @RequestParam String stage1Comment,
                                         @RequestParam String stage1Grade ){
-        return null;
+        return teacherService.evalStudentReport1(token, stuno, stage1Comment, stage1Grade);
     }
 
     @PostMapping("/student/{stuno}/report/stage2")
     @ApiOperation(value = "给学生的报告册填写第二阶段评价和打分", notes = "评价和打分,第二阶段评价后,后台要生成综合成绩")
-    @Deprecated
     public JsonResult evalStudentReport2(@RequestHeader String token,
                                          @PathVariable String stuno,
                                          @RequestParam String stage2Comment,
                                          @RequestParam String stage2Grade ){
-        return null;
+        return teacherService.evalStudentReport2(token, stuno, stage2Comment, stage2Grade);
     }
 
     @PostMapping("/student/{stuno}/report/total")
     @ApiOperation(value = "给学生的报告册填写综合评价(没有打分)", notes = "综合评价,注意数据校验和时间填写")
-    @Deprecated
     public JsonResult evalStudentReportTotal(@RequestHeader String token,
                                          @PathVariable String stuno,
-                                         @RequestParam String total_eval ){
-        return null;
+                                         @RequestParam String total_eval){
+        return teacherService.evalStudentReportTotal(token, stuno, total_eval);
     }
 
     // 以下是鉴定表
     @GetMapping("/student/{stuno}/appraisal")
     @ApiOperation(value = "获取某个学生的鉴定表", notes = "后台注意校验数据,注意带上时间信息")
-    @Deprecated
     public JsonResult studentAppraisal(@RequestHeader String token,
                                     @PathVariable String stuno){
-        return null;
+        return teacherService.myStudentAppraisal(token, stuno);
     }
 
     @PostMapping("/student/{stuno}/appraisal")
     @ApiOperation(value = "鉴定表教师填写内容", notes = "corpTeacherGrade单位导师成绩, 导师成绩,领导意见, " +
             "后台需要校验当corpTeacherGrade、teacherGrade都存在时,需要生成综合成绩")
-    @Deprecated
     public JsonResult evalStudentAppraisal(@RequestHeader String token,
                                            @PathVariable String stuno,
                                            @RequestParam(required = false) String corpTeacherGrade,
                                            @RequestParam(required = false) String teacherGrade,
                                            @RequestParam(required = false) String leaderOpinion){
-        return null;
+        return teacherService.evalStudentAppraisal(token, stuno, corpTeacherGrade, teacherGrade, leaderOpinion);
     }
 
 

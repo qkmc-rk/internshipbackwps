@@ -2,6 +2,7 @@ package org.whystudio.internship.service;
 
 import org.whystudio.internship.entity.Notification;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.whystudio.internship.vo.JsonResult;
 
 /**
  * <p>
@@ -14,4 +15,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface INotificationService extends IService<Notification> {
 
+    JsonResult newsList(Integer page, Integer limit);
+
+    JsonResult whichNews(Long id);
 }

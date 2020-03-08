@@ -90,7 +90,7 @@ CREATE TABLE `file` (
   `type` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '文件后缀pdf jpg png exe',
   `url` text COLLATE utf8mb4_general_ci COMMENT 'url',
   `size` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '文件大小',
-  `update` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
+  `upload` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='文件存储';
 
