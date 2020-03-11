@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.whystudio.internship.controller.ControllerUtil;
 import org.whystudio.internship.entity.Report;
 import org.whystudio.internship.entity.Reportdate;
+import org.whystudio.internship.entity.Student;
 import org.whystudio.internship.mapper.ReportMapper;
+import org.whystudio.internship.mapper.StudentMapper;
 import org.whystudio.internship.service.IReportService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     @Autowired
     IReportdateService reportdateService;
 
+    @Autowired
+    StudentMapper studentMapper;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult getReportInfo(String token) {
@@ -49,9 +54,11 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
                 report = newReport;
             }
             Reportdate reportdate = reportdateService.lambdaQuery().eq(Reportdate::getStuno, stuno).one();
+            Map<String, Object> student = studentMapper.selectPersonalInfoByStuno(stuno);
             Map<String, Object> resultMap = new HashMap<>();
             resultMap.put("report", report);
             resultMap.put("reportdate", reportdate);
+            resultMap.put("student", student);
             return ControllerUtil.getSuccessResultBySelf(resultMap);
         }
         return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
