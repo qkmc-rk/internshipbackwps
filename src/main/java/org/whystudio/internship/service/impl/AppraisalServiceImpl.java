@@ -8,6 +8,7 @@ import org.whystudio.internship.entity.Appraisal;
 import org.whystudio.internship.entity.Appraisal;
 import org.whystudio.internship.entity.Appraisaldate;
 import org.whystudio.internship.mapper.AppraisalMapper;
+import org.whystudio.internship.mapper.StudentMapper;
 import org.whystudio.internship.service.IAppraisalService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,9 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
     @Autowired
     AppraisalMapper appraisalMapper;
 
+    @Autowired
+    StudentMapper studentMapper;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult getAppraisalInfo(String token) {
@@ -51,9 +55,11 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
                 appraisal = newAppraisal;
             }
             Appraisaldate appraisaldate = appraisaldateService.lambdaQuery().eq(Appraisaldate::getStuno, stuno).one();
+            Map<String, Object> student = studentMapper.selectPersonalInfoByStuno(stuno);
             Map<String, Object> resultMap = new HashMap<>();
             resultMap.put("appraisal", appraisal);
             resultMap.put("appraisaldate", appraisaldate);
+            resultMap.put("student", student);
             return ControllerUtil.getSuccessResultBySelf(resultMap);
         }
         return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
