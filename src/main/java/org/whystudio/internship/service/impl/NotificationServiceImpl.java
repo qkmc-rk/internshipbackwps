@@ -43,7 +43,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     @Override
     public JsonResult whichNews(Long id) {
         List<Notification> list=mapper.selectNearId(Math.toIntExact(id));
-        Map<String,String> result=new HashMap<>();
+        Map<String,Object> result=new HashMap<>();
         //Notification notification=mapper.selectById(id);
         if(list.size()==2){
             for(Notification n: list){
@@ -61,7 +61,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
             }
         }
         else {
-            result.put("target",list.get(1)==null?null:list.get(1).toString());
+            result.put("news",list.get(1)==null?null:list.get(1));
             result.put("nextId",list.get(2)==null?null:String.valueOf(list.get(2).getId()));
             result.put("prevId",list.get(0)==null?null:String.valueOf(list.get(0).getId()));
         }

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class InternshipApplicationTests {
 ////			System.out.println(student);
 ////		}
 //		List<File> files = fileMapper.selectList(null);
-		String url="image.ruankun.xyz/31cb4cbcf643ecbe9d02fe3c5f93a5df";
+		String url = "image.ruankun.xyz/31cb4cbcf643ecbe9d02fe3c5f93a5df";
 //		File file = fileMapper.selectByUrl(url);
 		System.out.println(fileMapper.deleteByUrl(url));
 //		files.forEach(System.out::print);
@@ -68,15 +69,14 @@ public class InternshipApplicationTests {
 //		iStudentService.getOne(new W)
 //		Student student = studentMapper.selectByStuno("123");
 //		System.out.println(student);
-
+	}
 	@Test
-
-	public void selectPage(){
-		IPage<Notification> notificationIPage=new Page<>(1,10);
-		notificationIPage=notificationMapper.selectPage(notificationIPage,null);
-		List<Notification> list=notificationIPage.getRecords();
-		list.forEach(System.out :: println);
-
+	public void selectPage() {
+			IPage<Notification> notificationIPage = new Page<>(1, 10);
+			notificationIPage = notificationMapper.selectPage(notificationIPage, null);
+			List<Notification> list = notificationIPage.getRecords();
+			list.forEach(System.out::println);
+		}
 	public void rkTest(){
 		List<Integer> asList = Arrays.asList(123, 321, 422, 432, 664, 763);
 		asList.forEach((item) -> {

@@ -25,7 +25,7 @@ public class TeacherController extends BaseController {
     }
 
     @PostMapping("/info")
-    @ApiOperation(value = "修改个人信息", notes = "传入需要更新的字段即可, 非空字段进行修改,且注意某些特殊字段不能修改,且注意有的字段比如时间需要后台设置值")
+    @ApiOperation(value = "修改个人信息", notes = "目前仅能修改年龄和性别,传入需要更新的字段即可, 非空字段进行修改,且注意某些特殊字段不能修改,且注意有的字段比如时间需要后台设置值")
     public JsonResult modifyPersonalInfo(@RequestHeader String token, Teacher teacher){
         return teacherService.updatePersonalInfo(token, teacher);
     }
@@ -92,7 +92,8 @@ public class TeacherController extends BaseController {
 
     @PostMapping("/student/{stuno}/appraisal")
     @ApiOperation(value = "鉴定表教师填写内容", notes = "corpTeacherGrade单位导师成绩, 导师成绩,领导意见, " +
-            "后台需要校验当corpTeacherGrade、teacherGrade都存在时,需要生成综合成绩")
+            "后台需要校验当corpTeacherGrade、teacherGrade都存在时,需要生成综合成绩。" +
+            "只能传 优秀 良好 中等 及格 不及格, 其他值一律考虑成不及格")
     public JsonResult evalStudentAppraisal(@RequestHeader String token,
                                            @PathVariable String stuno,
                                            @RequestParam(required = false) String corpTeacherGrade,
