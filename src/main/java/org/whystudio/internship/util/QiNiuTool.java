@@ -148,7 +148,6 @@ public class QiNiuTool {
         //url = dns➕key
         //在七牛云中删除需要使用到key，将key分离;
         String key = url.replace(DNS + "/", "");
-        System.out.println(key);
         return key;
     }
 }

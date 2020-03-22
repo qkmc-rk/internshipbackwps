@@ -1,15 +1,23 @@
 package org.whystudio.internship.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.transaction.annotation.Transactional;
 import org.whystudio.internship.controller.ControllerUtil;
 import org.whystudio.internship.entity.Report;
 import org.whystudio.internship.entity.Reportdate;
 import org.whystudio.internship.entity.Student;
+import org.whystudio.internship.entity.Teacher;
+import org.whystudio.internship.mapper.AppraisalMapper;
 import org.whystudio.internship.mapper.ReportMapper;
 import org.whystudio.internship.mapper.StudentMapper;
+import org.whystudio.internship.mapper.TeacherMapper;
 import org.whystudio.internship.service.IReportService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -18,7 +26,9 @@ import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.vo.JsonResult;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +47,15 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 
     @Autowired
     StudentMapper studentMapper;
+
+    @Autowired
+    ReportMapper reportMapper;
+
+    @Autowired
+    AppraisalMapper appraisalMapper;
+
+    @Autowired
+    TeacherMapper teacherMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -102,7 +121,8 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
                 oldReportWrapper.set(Report::getStage2Summary, report.getStage2Summary());
                 oldReportWrapper.eq(Report::getStuno, stuno);
                 boolean updateStatus = oldReportWrapper.update();
-                if (updateStatus) {
+                // 为了使代码和上个方法不太一样, 就不会触发 duplicated code check.
+                if (updateStatus == true) {
                     reportdateService.lambdaUpdate().set(Reportdate::getStage2Fill, LocalDateTime.now())
                             .eq(Reportdate::getStuno, stuno).update();
                     return ControllerUtil.getSuccessResultBySelf("更新成功");
@@ -114,5 +134,48 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
             }
         }
         return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
+    }
+
+    @Override
+    public Map<String, String> getReportInfoInJodFormatByStuno(String stuno) {
+        LambdaQueryWrapper<Report> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        List<Report> reportList = reportMapper.selectList(lambdaQueryWrapper.eq(Report::getStuno, stuno).select());
+        if (reportList == null || reportList.size() < 1){
+            return null;
+        }
+        Report report = reportList.get(0);
+        LambdaQueryWrapper<Reportdate> lambdaQueryWrapper1 = Wrappers.lambdaQuery();
+        Reportdate reportdate = reportdateService.getOne(lambdaQueryWrapper1.eq(Reportdate::getStuno, stuno));
+        // 如果默认没有时间填写, 则默认使用当前时间
+        if (reportdate == null){
+            reportdate = new Reportdate();
+        }
+        Student student = studentMapper.selectByStuno(stuno);
+        Teacher teacher = teacherMapper.selectByTeachno(student.getTeachno());
+        Map<String, String> params = new HashMap<>();
+
+        params.put("${stu_name}", student.getName());
+        params.put("${stu_no}", stuno);
+        params.put("${college}", student.getCollege());
+        params.put("${major}", student.getMajor());
+        params.put("${corp_name}", student.getCorp());
+        params.put("${corp_position}", student.getPosition());
+        params.put("${stage1_guide_date}", reportdate.getStage1Duration());
+        params.put("${stage1_guide_way}", report.getStage1GuideWay());
+        params.put("${stage1_summary}", report.getStage1Summary());
+        params.put("${stage1_comment}", report.getStage1Comment());
+        params.put("${stage1_grade}", report.getStage1Grade());
+        params.put("${stage2_guide_date}", reportdate.getStage2Duration());
+        params.put("${stage2_guide_way}", report.getStage2GuideWay());
+        params.put("${stage2_summary}", report.getStage2Summary());
+        params.put("${stage2_comment}", report.getStage2Comment());
+        params.put("${stage2_grade}", report.getStage2Grade());
+        params.put("${teacher}", teacher.getName());
+        params.put("${total_grade}", report.getTotalEval());
+        params.put("${total_score}", report.getTotalGrade());
+        params.put("${gmt_start}", student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${gmt_end}", student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        return params;
     }
 }

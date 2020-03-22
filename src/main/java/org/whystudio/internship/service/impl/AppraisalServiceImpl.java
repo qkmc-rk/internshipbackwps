@@ -89,4 +89,10 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
         }
         return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
     }
+
+    @Override
+    public Map<String, String> getAppraisalInfoInJodFormatByStuno(String stuno) {
+
+        return null;
+    }
 }
