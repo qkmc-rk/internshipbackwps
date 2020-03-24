@@ -67,4 +67,14 @@ public class Const {
     public static final int STAGE2 = 2;
     public final int STAGE2_ = 2;
 
+    // 认证参数 管理员可以访问任何接口
+    public static final int AUTH_STUDENT = 2;
+    public final int _AUTH_STUDENT = 2;
+    public static final int AUTH_TEACHER = 3;
+    public final int _AUTH_TEACHER = 3;
+    public static final int AUTH_ADMIN = 4;
+    public final int _AUTH_ADMIN = 4;
+    public static final int AUTH_ALL = 5;
+    public final int _AUTH_ALL = 5;
+
 }

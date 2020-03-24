@@ -1,14 +1,16 @@
 package org.whystudio.internship.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.whystudio.internship.controller.ControllerUtil;
+import org.whystudio.internship.entity.*;
 import org.whystudio.internship.entity.Appraisal;
-import org.whystudio.internship.entity.Appraisal;
-import org.whystudio.internship.entity.Appraisaldate;
 import org.whystudio.internship.mapper.AppraisalMapper;
 import org.whystudio.internship.mapper.StudentMapper;
+import org.whystudio.internship.mapper.TeacherMapper;
 import org.whystudio.internship.service.IAppraisalService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,10 @@ import org.whystudio.internship.service.IAppraisaldateService;
 import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.vo.JsonResult;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +43,9 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
 
     @Autowired
     StudentMapper studentMapper;
+
+    @Autowired
+    TeacherMapper teacherMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -92,7 +100,38 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
 
     @Override
     public Map<String, String> getAppraisalInfoInJodFormatByStuno(String stuno) {
-
-        return null;
+        LambdaQueryWrapper<Appraisal> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        List<Appraisal> appraisalList = appraisalMapper.selectList(lambdaQueryWrapper.eq(Appraisal::getStuno, stuno).select());
+        if (appraisalList == null || appraisalList.size() < 1){
+            return null;
+        }
+        Appraisal appraisal = appraisalList.get(0);
+        LambdaQueryWrapper<Appraisaldate> lambdaQueryWrapper1 = Wrappers.lambdaQuery();
+        Appraisaldate appraisaldate = appraisaldateService.getOne(lambdaQueryWrapper1.eq(Appraisaldate::getStuno, stuno));
+        // 如果默认没有时间填写, 则默认使用当前时间
+        if (appraisaldate == null){
+            appraisaldate = new Appraisaldate();
+        }
+        Map<String, String> params = new HashMap<>();
+        Student student = studentMapper.selectByStuno(stuno);
+        //Teacher teacher = teacherMapper.selectByTeachno(student.getTeachno());
+        params.put("${college}", student.getCollege());
+        params.put("${major}", student.getMajor());
+        params.put("${name}", student.getName());
+        params.put("${stuno}", student.getStuno());
+        params.put("${corp_name}", student.getCorp());
+        params.put("${start}", student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${end}", student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${content}", appraisal.getContent());
+        params.put("${summary}", appraisal.getSummary());
+        params.put("${corp_teacher_opinion}", appraisal.getCorpTeacherOpinion());
+        params.put("${corp_opinion}", appraisal.getCorpOpinion());
+        params.put("${teacher_grade}", appraisal.getTeacherGrade());
+        // 填写的时候就有
+        params.put("${synthgrade}", appraisal.getSynthGrade());
+        params.put("${college_principal_opinion}", appraisal.getLeaderOpinion());
+        params.put("${corp_teacher_grade}", appraisal.getCorpTeacherGrade());
+        return params;
     }
 }

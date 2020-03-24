@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.whystudio.internship.entity.Pdf;
 import org.whystudio.internship.service.IAppraisalService;
 import org.whystudio.internship.service.IPdfService;
@@ -19,8 +18,8 @@ import javax.annotation.PostConstruct;
 import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,11 +64,26 @@ public class JodService {
      */
     public static String BASE_SAVE_PATH = MultiPlatformPathTool.isWindows()?"static\\":"static/";
 
+    public static Long REC_THRESHOLD = 10L;
+    /**
+     * 计数器, 计数当前转完完成的任务总数 初始化不为0是为了除
+     * 这个计数器和下面的总任务耗时可以单独建立一个线程监听，如果超过某个值就给重置,
+     * 但目前没必要, 这个任务难道会超过10亿次？
+     * 另外还可以设置异常检测, 如果某次耗时超过30s, 应该是检测异常, 则不计算
+     * 不过也没有必要,体现不了任何价值
+     */
+    public static Long COUNT = 1L;
+
+    /**
+     * 总秒数, 转换所有任务总共耗时
+     */
+    public static Long TOTAL_SECOND = 5L;
+
     /**
      * 转换队列
      * 通过http向队列添加转换任务
      */
-    private static Queue<JodItem> queue = new LinkedList<>();
+    private static ConcurrentLinkedQueue<JodItem> queue = new ConcurrentLinkedQueue<>();
 
     public static JodService jodService;
 
@@ -96,12 +110,12 @@ public class JodService {
      * @param stuno
      * @return
      */
-    public String getPosition(String stuno){
+    public String getPosition(String stuno, Boolean report){
         int count = 0;
         int size = queue.size();
         for (JodItem jodItem: queue) {
             count ++ ;
-            if (jodItem.getStuno().equals(stuno)){
+            if (jodItem.getStuno().equals(stuno) && jodItem.getReport().equals(report)){
                 break;
             }
         }
@@ -114,8 +128,24 @@ public class JodService {
             rs.append("个任务,");
             rs.append("您的最近一个任务处于位置");
             rs.append(count);
+            rs.append(",预计耗费时间:");
+            rs.append((TOTAL_SECOND / COUNT) * count);
         }
         return rs.toString();
+    }
+
+    /**
+     * 在队列中查找是否存在我的任务
+     * @param stuno
+     * @return
+     */
+    public Boolean existMyTask(String stuno, Boolean report){
+        for (JodItem jodItem: queue) {
+            if (jodItem.getStuno().equals(stuno) && jodItem.getReport().equals(report)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -129,24 +159,23 @@ public class JodService {
     /**
      * 执行word文档生成任务,队列中有多个任务, 一个任务一个任务地执行
      */
-    @Transactional
+    //@Transactional
     public void executeJodTask(){
         new Thread(() -> {
             while(true){
+                JodItem jodItem = queue.poll();
+                Pdf pdf = new Pdf();
+                pdf.setConverting(true);
+                pdf.setUrl("-");
                 try {
-                    JodItem jodItem = queue.poll();
                     if (jodItem != null){
                         LocalDateTime start = LocalDateTime.now();
-                        LocalDateTime usedTime = LocalDateTime.now();
-                        log.info("学号{},位置:{}, 开始转换时间:{}",jodItem.getStuno(),getPosition(jodItem.getStuno()) ,start);
+                        log.info("学号{},位置:{}(数值 + 1, 位置0代表1), 开始转换时间:{}",jodItem.getStuno(),getPosition(jodItem.getStuno(),jodItem.getReport()) ,start);
                         // 转换任务存储到数据库, 并标记状态为未完成
-                        Pdf pdf = new Pdf();
+                        // id在new时便已经设置好 暂时使用随机long
                         pdf.setReport(jodItem.getReport());
-                        pdf.setConverting(true);
                         pdf.setStuno(jodItem.getStuno());
-                        pdf.setUrl("-");
-                        pdf.setId(new Random().nextLong()); // 暂时使用随机long
-                        pdfService.lambdaUpdate().update(pdf);
+                        pdfService.saveOrUpdate(pdf);
                         // 执行转换任务
                         XWPFDocument xwpfDocument;
                         // 从数据库读取report、reportData或者appraisal、appraisalDate, 然后生成params
@@ -179,20 +208,33 @@ public class JodService {
                         documentConverter.convert(sourceDocx).to(targetPdf).execute();
                         // 上传到七牛云
                         String url = QiNiuTool.uploadQiNiu(new FileInputStream(targetPdf),targetPdf.getName());
-                        // 存储到数据库的转换任务标记状态为完成
+
                         pdf.setUrl(url);
                         pdf.setConverting(false);
                         pdfService.saveOrUpdate(pdf);
-                        log.info("学号{},转换耗时:{}s",jodItem.getStuno(),
+                        // 嘿嘿
+                        Long durex = Duration.between(start, LocalDateTime.now()).getSeconds();
+                        if (durex > REC_THRESHOLD){
+                            // 大于10s的才记录
+                            COUNT ++;
+                            TOTAL_SECOND += Duration.between(start, LocalDateTime.now()).getSeconds();
+                        }
+                        log.info("学号{},转换加上传到QiNiu耗时:{}s",jodItem.getStuno(),
                                 Duration.between(start, LocalDateTime.now()).getSeconds());
                     }
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (OfficeException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    pdf.setFailed(true);
+                    pdfService.saveOrUpdate(pdf);
+                    continue;
+                }
+                // 如果队列中没有任务, 就让线程休息一会儿
+                if (queue.size() < 1){
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        log.error(e.getMessage());
+                    }
                 }
             }
         }).start();

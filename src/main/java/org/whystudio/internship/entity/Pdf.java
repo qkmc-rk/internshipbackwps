@@ -2,6 +2,9 @@ package org.whystudio.internship.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,6 +12,8 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Random;
+
 /**
  * <p>
  *
@@ -26,8 +31,10 @@ public class Pdf implements Serializable {
 
     private static final long serialVersionUID=1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    // 默认用户生成ID 为了满足业务逻辑的某个位置 JodService::executeTask
+    @JsonSerialize(using = ToStringSerializer.class)
+    @TableId(value = "id", type = IdType.INPUT)
+    private Long id = Math.abs(new Random().nextLong());
 
     private String url;
 
@@ -40,5 +47,8 @@ public class Pdf implements Serializable {
 
     // 是否正在转换
     private Boolean converting;
+
+    // 转换是否失败
+    private Boolean failed = false;
 
 }

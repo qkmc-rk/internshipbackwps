@@ -3,6 +3,7 @@ package org.whystudio.internship.controller;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.whystudio.internship.annotation.Auth;
 import org.whystudio.internship.service.IUserService;
 import org.whystudio.internship.util.IpTool;
 import org.whystudio.internship.util.JWTTool;
@@ -48,6 +49,7 @@ public class AuthController extends BaseController{
 
     @GetMapping("/token/expire")
     @ApiOperation(value = "判断token是否过期了")
+    @Auth(role = Const.AUTH_ALL)
     public JsonResult tokenExpire(@RequestHeader String token){
         String username = JWTTool.findToken(token);
         return ControllerUtil.getTrueOrFalseResult(!(null == username));

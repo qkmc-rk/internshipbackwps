@@ -7,6 +7,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.BatchStatus;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
 import org.slf4j.Logger;
@@ -16,7 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -81,8 +84,8 @@ public class QiNiuTool {
         try {
             Response response = uploadManager.put(file, key, token, null, null);
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-            System.out.println("PutKey: " + putRet.key);
-            System.out.println("PutHash: " + putRet.hash);
+            //System.out.println("PutKey: " + putRet.key);
+            ///System.out.println("PutHash: " + putRet.hash);
             //返回的url路径名称
             return DNS + "/" + putRet.key;
         } catch (Exception e) {
@@ -118,13 +121,12 @@ public class QiNiuTool {
 
     /**
      * 在七牛云上删除文件
-     * @param key
+     * @param key such as happy.jpg
      * @return
      */
     public static Boolean deleteQiNiuFile(String key) {
         //构造一个带指定 Region 对象的配置类
         Configuration cfg = new Configuration(Region.region0());
-
         Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
         BucketManager bucketManager = new BucketManager(auth, cfg);
         try {
@@ -139,6 +141,41 @@ public class QiNiuTool {
         return false;
     }
 
+    /**
+     * 批量删除文件
+     * @param keys 文件名列表
+     * @return
+     */
+    public static List<String> deleteQiNiuFileBatch(String[] keys) {
+        Configuration cfg = new Configuration(Region.region0());
+        Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+        BucketManager bucketManager = new BucketManager(auth, cfg);
+        try {
+            BucketManager.BatchOperations batchOperations = new BucketManager.BatchOperations();
+            batchOperations.addDeleteOp(BUCKET_NAME, keys);
+            Response response = bucketManager.batch(batchOperations);
+            BatchStatus[] batchStatusList = response.jsonToObject(BatchStatus[].class);
+            List<String> rs = new ArrayList<>();
+
+            for (int i = 0; i < keys.length; i++) {
+                StringBuilder s = new StringBuilder();
+                BatchStatus status = batchStatusList[i];
+                String key = keys[i];
+                s.append(key);
+                s.append("\t");
+                if (status.code == 200) {
+                    s.append("delete success");
+                } else {
+                    s.append(status.data.error);
+                }
+                rs.add(s.toString());
+            }
+            return rs;
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     /**
      * 解析出key的工具
      * @param url

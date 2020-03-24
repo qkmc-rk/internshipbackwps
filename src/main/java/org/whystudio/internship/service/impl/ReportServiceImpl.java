@@ -154,12 +154,16 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         Teacher teacher = teacherMapper.selectByTeachno(student.getTeachno());
         Map<String, String> params = new HashMap<>();
 
-        params.put("${stu_name}", student.getName());
-        params.put("${stu_no}", stuno);
         params.put("${college}", student.getCollege());
         params.put("${major}", student.getMajor());
+        params.put("${name}", student.getName());
+        params.put("${stuno}", stuno);
+        params.put("${teacher}", teacher.getName());
+        params.put("${start}", student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${end}", student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${corp_name}", student.getCorp());
         params.put("${corp_position}", student.getPosition());
+        params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${stage1_guide_date}", reportdate.getStage1Duration());
         params.put("${stage1_guide_way}", report.getStage1GuideWay());
         params.put("${stage1_summary}", report.getStage1Summary());
@@ -170,12 +174,8 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         params.put("${stage2_summary}", report.getStage2Summary());
         params.put("${stage2_comment}", report.getStage2Comment());
         params.put("${stage2_grade}", report.getStage2Grade());
-        params.put("${teacher}", teacher.getName());
-        params.put("${total_grade}", report.getTotalEval());
-        params.put("${total_score}", report.getTotalGrade());
-        params.put("${gmt_start}", student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        params.put("${gmt_end}", student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${total_eval}", report.getTotalEval());
+        params.put("${total_grade}", report.getTotalGrade());
         return params;
     }
 }
