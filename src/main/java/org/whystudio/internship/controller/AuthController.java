@@ -26,6 +26,7 @@ import java.io.OutputStream;
  */
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin
 public class AuthController extends BaseController{
 
     @Autowired

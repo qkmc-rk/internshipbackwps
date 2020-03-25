@@ -11,6 +11,7 @@ import org.whystudio.internship.vo.Const;
 import org.whystudio.internship.vo.JsonResult;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/teacher")
 public class TeacherController extends BaseController {
 

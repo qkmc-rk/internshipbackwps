@@ -18,6 +18,7 @@ import java.util.List;
  *
  */
 @RestController
+@CrossOrigin
 @RequestMapping("pdf")
 public class PdfController extends BaseController {
 

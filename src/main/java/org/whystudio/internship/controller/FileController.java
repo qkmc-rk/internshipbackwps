@@ -15,6 +15,7 @@ import org.whystudio.internship.vo.JsonResult;
  * 文件上传、下载、查询控制器
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/file")
 public class FileController extends BaseController {
     @Autowired

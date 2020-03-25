@@ -13,6 +13,7 @@ import org.whystudio.internship.vo.JsonResult;
  * 学生相关操作控制器
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/student")
 public class StudentController extends BaseController {
 
