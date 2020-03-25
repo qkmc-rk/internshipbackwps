@@ -3,6 +3,7 @@ package org.whystudio.internship.controller;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.whystudio.internship.util.JWTTool;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @ApiIgnore
 @RestController
+@CrossOrigin
 public class HttpErrorController implements ErrorController {
 
     // 发生错误时跳转的uri

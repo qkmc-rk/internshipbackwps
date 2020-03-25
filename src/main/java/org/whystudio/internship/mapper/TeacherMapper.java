@@ -36,4 +36,5 @@ public interface TeacherMapper extends BaseMapper<Teacher> {
      */
     @Select("select * from teacher ${ew.customSqlSegment}")
     List<Teacher> selectTeacherByModifySql(@Param(Constants.WRAPPER) Wrapper<Teacher> wrapper);
+
 }

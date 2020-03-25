@@ -1,10 +1,9 @@
 package org.whystudio.internship.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 /**
  * controller中一些可能共用的方法可以写在这里面
  */
-public abstract class BaseController {
-
-
-
-}
+@CrossOrigin
+public abstract class BaseController { }
