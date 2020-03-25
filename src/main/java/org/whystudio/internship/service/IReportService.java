@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.whystudio.internship.entity.Reportdate;
 import org.whystudio.internship.vo.JsonResult;
 
+import java.util.Map;
+
 /**
  * <p>
  *  服务类
@@ -41,4 +43,10 @@ public interface IReportService extends IService<Report> {
     JsonResult updateReportStage2(String token, Report report);
 
 
+    /**
+     * 通过学号获取 report信息，并转换成office需要的格式 key:'${...}'
+     * @param stuno
+     * @return
+     */
+    Map<String, String> getReportInfoInJodFormatByStuno(String stuno);
 }

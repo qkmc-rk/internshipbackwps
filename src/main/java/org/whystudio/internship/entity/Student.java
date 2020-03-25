@@ -73,27 +73,27 @@ public class Student implements Serializable {
     private String majorcode;
 
     @ApiModelProperty(value = "创建时间")
-    private LocalDateTime created;
+    private LocalDateTime created = LocalDateTime.now();
 
     @ApiModelProperty(value = "更新时间")
-    private LocalDateTime modified;
+    private LocalDateTime modified = LocalDateTime.now();
 
     @ApiModelProperty(value = "状态1启用 0停用")
     private Boolean status;
 
     @ApiModelProperty(value = "实习企业")
-    private String corp;
+    private String corp = "";
 
     @ApiModelProperty(value = "实习岗位")
-    private String position;
+    private String position = "";
 
     @ApiModelProperty(value = "实习开始时间")
-    private LocalDateTime starttime;
+    private LocalDateTime starttime = LocalDateTime.now();
 
     @ApiModelProperty(value = "实习结束时间")
-    private LocalDateTime endtime;
+    private LocalDateTime endtime = LocalDateTime.now();
 
     @ApiModelProperty(value = "导师工号")
-    private String teachno;
+    private String teachno = "";
 
 }

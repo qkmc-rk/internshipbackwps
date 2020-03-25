@@ -2,6 +2,10 @@ package org.whystudio.internship;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,30 +62,25 @@ public class InternshipApplicationTests {
 //		iStudentService.getOne(new W)
 //		Student student = studentMapper.selectByStuno("123");
 //		System.out.println(student);
-    }
-
-    @Test
-    public void selectPage() {
+	}
+	@Test
+	public void selectPage() {
         IPage<Notification> notificationIPage = new Page<>(1, 10);
         notificationIPage = notificationMapper.selectPage(notificationIPage, null);
         List<Notification> list = notificationIPage.getRecords();
         list.forEach(System.out::println);
     }
+	public void rkTest(){
+		List<Integer> asList = Arrays.asList(123, 321, 422, 432, 664, 763);
+		asList.forEach((item) -> {
+			System.out.println(item);
+		});
+		//select by map 多个条件查询
+	}
 
-    @Test
-    public void rkTest() {
-        List<Integer> asList = Arrays.asList(123, 321, 422, 432, 664, 763);
-        asList.forEach((item) -> {
-            System.out.println(item);
-        });
-        //select by map 多个条件查询
+	@Test
+	public void m(){
+		List<Student> list = iStudentService.lambdaQuery().eq(Student::getStuno, "201604252").list();
+		System.out.println(list == null?null:list.get(0));
     }
-
-    @Test
-    public void m() {
-        List<Student> list = iStudentService.lambdaQuery().eq(Student::getStuno, "201604252").list();
-        System.out.println(list == null ? null : list.get(0));
-    }
-
-
 }

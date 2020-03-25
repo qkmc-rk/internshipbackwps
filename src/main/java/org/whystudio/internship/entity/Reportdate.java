@@ -33,22 +33,22 @@ public class Reportdate implements Serializable {
     private String stuno;
 
     @ApiModelProperty(value = "阶段1时间段")
-    private String stage1Duration;
+    private String stage1Duration = "";
 
     @ApiModelProperty(value = "阶段1填写时间")
-    private LocalDateTime stage1Fill;
+    private LocalDateTime stage1Fill = LocalDateTime.now();
 
     @ApiModelProperty(value = "阶段1评价评分时间")
-    private LocalDateTime stage1Grade;
+    private LocalDateTime stage1Grade = LocalDateTime.now();
 
     @ApiModelProperty(value = "阶段2时间段")
-    private String stage2Duration;
+    private String stage2Duration = "";
 
     @ApiModelProperty(value = "阶段2填写时间")
-    private LocalDateTime stage2Fill;
+    private LocalDateTime stage2Fill = LocalDateTime.now();
 
     @ApiModelProperty(value = "阶段2评分评价时间")
-    private LocalDateTime stage2Grade;
+    private LocalDateTime stage2Grade = LocalDateTime.now();
 
 
 }

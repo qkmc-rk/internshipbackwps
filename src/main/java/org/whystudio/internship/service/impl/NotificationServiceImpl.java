@@ -42,6 +42,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
 
     @Override
     public JsonResult whichNews(Long id) {
+
         Notification res = mapper.selectById(id);
         if (res == null) {
             return ControllerUtil.getFalseResultMsgBySelf("查无此id");
@@ -66,7 +67,6 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
                 result.put("nextId", list.get(2) == null ? null : String.valueOf(list.get(2).getId()));
                 result.put("prevId", list.get(0) == null ? null : String.valueOf(list.get(0).getId()));
             }
-
             return ControllerUtil.getDataResult(result);
         }
     }

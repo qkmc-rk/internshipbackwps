@@ -16,6 +16,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @RestController
+@CrossOrigin
 @RequestMapping("/news")
 public class NewsController extends BaseController {
 

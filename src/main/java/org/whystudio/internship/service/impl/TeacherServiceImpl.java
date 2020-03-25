@@ -3,6 +3,7 @@ package org.whystudio.internship.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.mchange.lang.IntegerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.whystudio.internship.controller.ControllerUtil;
@@ -72,11 +73,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     public JsonResult updatePersonalInfo(String token, Teacher teacher) {
         String teachNo = JWTTool.findToken(token); // not null
-        teacher.setTeachno(teachNo);
+        Teacher teacher1 =  teacherMapper.selectByTeachno(teachNo);
+        teacher1.setAge((teacher.getAge() == null)?teacher1.getAge():teacher.getAge());
+        teacher1.setSex(StringUtils.isBlank(teacher.getSex())?teacher1.getSex():teacher.getSex());
         LambdaUpdateWrapper<Teacher> lambdaUpdateWrapper = Wrappers.lambdaUpdate();
         lambdaUpdateWrapper.eq(Teacher::getTeachno, teachNo);
-        if (teacherMapper.update(teacher, lambdaUpdateWrapper) > 0){
-            return ControllerUtil.getDataResult(teacherMapper.selectByTeachno(teachNo));
+        if (teacherMapper.update(teacher1, lambdaUpdateWrapper) > 0){
+            return ControllerUtil.getDataResult(teacher1);
         } else {
             return ControllerUtil.getFalseResultMsgBySelf("更新信息失败");
         }
@@ -124,7 +127,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         String teachNo = JWTTool.findToken(token); // teachNo不为空
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         if (null == student || !student.getTeachno().equals(teachNo)){
-            return ControllerUtil.getFalseResultMsgBySelf("无权访问该学生信息");
+            return ControllerUtil.getFalseResultMsgBySelf("你无权访问该学生信息");
         }
         Appraisal appraisal = appraisalService.lambdaQuery().eq(Appraisal::getStuno, stuno).one();
         if (appraisal == null){
@@ -148,8 +151,16 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     @Transactional
     public JsonResult evalStudentAppraisal(String token, String stuno, String corpTeacherGrade, String teacherGrade, String leaderOpinion) {
-        Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
+        String[] grades = {Const.NO_PASS, Const.PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
+        List<String> list = Arrays.asList(grades);
+        if (!StringUtils.isBlank(corpTeacherGrade) && !list.contains(corpTeacherGrade)){
+            corpTeacherGrade = Const.NO_PASS;
+        }
+        if (!StringUtils.isBlank(teacherGrade) && !list.contains(teacherGrade)){
+            teacherGrade = Const.NO_PASS;
+        }
         String teachNo = JWTTool.findToken(token); // teachNo不为空
+        Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         if (null == student || !student.getTeachno().equals(teachNo)){
             return ControllerUtil.getFalseResultMsgBySelf("无权访问该学生信息");
         }
@@ -169,14 +180,14 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
             //填写时间后台更新操作
             Appraisaldate appraisaldate = appraisaldateService.lambdaQuery().eq(Appraisaldate::getStuno, stuno).one();
             if (appraisaldate == null){
-                appraisal = new Appraisal();
-                appraisal.setStuno(stuno);
+                appraisaldate = new Appraisaldate();
+                appraisaldate.setStuno(stuno);
             }
             appraisaldate.setCorpteacher(StringUtils.isBlank(corpTeacherGrade)?null:LocalDateTime.now());
             appraisaldate.setTeacher(StringUtils.isBlank(teacherGrade)?null:LocalDateTime.now());
             appraisaldate.setLeader(StringUtils.isBlank(leaderOpinion)?null:LocalDateTime.now());
             appraisaldate.setSynth(StringUtils.isBlank(synthGrade)?null:LocalDateTime.now());
-            return ControllerUtil.getTrueOrFalseResult(appraisaldateService.save(appraisaldate));
+            return ControllerUtil.getTrueOrFalseResult(appraisaldateService.saveOrUpdate(appraisaldate));
         } else {
             return ControllerUtil.getFalseResultMsgBySelf("更新鉴定表失败");
         }
@@ -203,7 +214,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         }
         Report report = reportService.lambdaQuery().eq(Report::getStuno, stuno).one();
         report.setTotalEval(StringUtils.isBlank(total_eval)?report.getTotalEval():total_eval);
-        return ControllerUtil.getTrueOrFalseResult(reportService.save(report));
+        return ControllerUtil.getTrueOrFalseResult(reportService.saveOrUpdate(report));
     }
 
 
@@ -215,14 +226,18 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
      * @return
      */
     private String getSynthGrade(String corpTeacherGrade, String teacherGrade){
+        String[] grades = {Const.NO_PASS, Const.PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
         if (StringUtils.isBlank(corpTeacherGrade) || StringUtils.isBlank(teacherGrade)){
             return null;
         }
-        String[] grades = {Const.NO_PASS, Const.PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
         int flag1 = Arrays.asList(grades).indexOf(corpTeacherGrade) + 1;
         int flag2 = Arrays.asList(grades).indexOf(teacherGrade) + 1;
         int flag = Math.min(flag1, flag2);
-        return grades[flag];
+        if (flag <= 0){
+            flag = 1;// 若是输入的不是5个常量, 判定为差生
+        }
+        System.out.println(flag + ", " + flag1 + "," + flag2);
+        return grades[flag - 1];
     }
 
     /**
@@ -235,6 +250,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
      * @return
      */
     private JsonResult evalReport(int stage, String token, String stuno, String stageComment, String stageGrade){
+        // 交换顺序方式重复代码块警告
+        String[] grades = {Const.PASS,Const.NO_PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
+        List<String> list = Arrays.asList(grades);
+        if (!list.contains(stageGrade) && !StringUtils.isBlank(stageGrade)){
+            stageGrade = Const.NO_PASS;
+        }
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         String teachNo = JWTTool.findToken(token); // teachNo不为空
         if (null == student || !student.getTeachno().equals(teachNo)){
@@ -265,7 +286,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
             }else {
                 reportdate.setStage2Grade(StringUtils.isBlank(stageGrade)?null:LocalDateTime.now());
             }
-            return ControllerUtil.getTrueOrFalseResult(reportdateService.save(reportdate));
+            return ControllerUtil.getTrueOrFalseResult(reportdateService.saveOrUpdate(reportdate));
         }else {
             return ControllerUtil.getFalseResultMsgBySelf("更新报告册失败");
         }

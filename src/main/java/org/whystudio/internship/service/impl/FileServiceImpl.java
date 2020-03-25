@@ -100,7 +100,6 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
 
     @Override
     public JsonResult getFileList() {
-
         List<File> fileList = fileMapper.selectList(null);
         return ControllerUtil.getSuccessResultBySelf(fileList);
 
