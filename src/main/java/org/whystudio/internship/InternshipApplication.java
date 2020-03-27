@@ -7,6 +7,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.whystudio.internship.util.IpTool;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Slf4j
@@ -21,8 +22,8 @@ public class InternshipApplication implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		log.info("Tomcat服务启动完成: http://localhost:{}{}", port,context);
-		log.info("Swagger2 API文档: http://localhost:{}{}/swagger-ui.html", port,context);
+		log.info("Tomcat服务启动完成: http://{}:{}{}", "ruankun.xyz", port,context);
+		log.info("Swagger2 API文档: http://{}:{}{}/swagger-ui.html", "ruankun.xyz", port,context);
 	}
 
 	public static void main(String[] args) {

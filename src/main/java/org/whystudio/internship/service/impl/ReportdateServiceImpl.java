@@ -2,6 +2,7 @@ package org.whystudio.internship.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.whystudio.internship.controller.ControllerUtil;
 import org.whystudio.internship.entity.Reportdate;
 import org.whystudio.internship.mapper.ReportdateMapper;
@@ -10,6 +11,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.vo.JsonResult;
+
+import java.util.List;
 
 /**
  * <p>
@@ -21,10 +24,21 @@ import org.whystudio.internship.vo.JsonResult;
  */
 @Service
 public class ReportdateServiceImpl extends ServiceImpl<ReportdateMapper, Reportdate> implements IReportdateService {
+
+    @Autowired
+    IReportdateService reportdateService;
+
     @Override
     public JsonResult updateReportDate(String token, Reportdate reportdate) {
         String stuno = JWTTool.findToken(token);
         if (StringUtils.isNotBlank(stuno)) {
+            // 先判断数据库是否存在，不存在要新建
+            List<Reportdate> list = reportdateService.lambdaQuery().eq(Reportdate::getStuno, stuno).list();
+            if (null == list || list.size() < 1){
+                Reportdate r = new Reportdate();
+                r.setStuno(stuno);
+                reportdateService.save(r);
+            }
             String stage1Duration = reportdate.getStage1Duration();
             String stage2Duration = reportdate.getStage2Duration();
             boolean stage1IsNotBlack = StringUtils.isNotBlank(stage1Duration);
