@@ -6,8 +6,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.whystudio.internship.util.IpTool;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.File;
@@ -29,6 +27,17 @@ public class InternshipApplication implements ApplicationRunner {
 	}
 
 	public static void main(String[] args) {
+
+		// 创建文件夹, 用于临时存放word文档
+		File file = new File("static");
+		if (!file.exists() || !file.isDirectory()){
+			log.warn("initial task:create static folder for word file saving!");
+			file.mkdir();
+			log.info("created successfully...path:{}", file.getPath());
+		}else {
+			log.info("path exists, no creating：{}", file.getPath());
+		}
+
 		SpringApplication.run(InternshipApplication.class, args);
 	}
 }
