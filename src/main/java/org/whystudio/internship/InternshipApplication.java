@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.whystudio.internship.util.IpTool;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.io.File;
+
 @Slf4j
 @SpringBootApplication
 @EnableSwagger2   // 放在有 @Configuration 注解的地方
