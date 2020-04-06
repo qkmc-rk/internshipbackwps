@@ -27,6 +27,7 @@ import org.whystudio.internship.vo.JsonResult;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,11 +138,20 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     }
 
     @Override
+    @Transactional
     public Map<String, String> getReportInfoInJodFormatByStuno(String stuno) {
         LambdaQueryWrapper<Report> lambdaQueryWrapper = Wrappers.lambdaQuery();
         List<Report> reportList = reportMapper.selectList(lambdaQueryWrapper.eq(Report::getStuno, stuno).select());
         if (reportList == null || reportList.size() < 1){
-            return null;
+            // 若是数据库中没有, 就重新生成一个空的
+            Report report = new Report();
+            Reportdate reportdate = new Reportdate();
+            report.setStuno(stuno);
+            reportdate.setStuno(stuno);
+            reportMapper.insert(report);
+            reportdateService.saveOrUpdate(reportdate);
+            reportList = new ArrayList<>();
+            reportList.add(report);
         }
         Report report = reportList.get(0);
         LambdaQueryWrapper<Reportdate> lambdaQueryWrapper1 = Wrappers.lambdaQuery();
@@ -159,8 +169,8 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         params.put("${name}", student.getName());
         params.put("${stuno}", stuno);
         params.put("${teacher}", teacher.getName());
-        params.put("${start}", student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        params.put("${end}", student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${start}", (student.getStarttime()==null)?"":student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${end}", (student.getEndtime()==null)?"":student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${corp_name}", student.getCorp());
         params.put("${corp_position}", student.getPosition());
         params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
