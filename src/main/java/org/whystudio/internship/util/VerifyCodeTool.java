@@ -25,7 +25,8 @@ public class VerifyCodeTool {
      *
      */
     public static boolean verify(String ip, String code){
-        String codeFromRedis = RedisTool.getInstance().readDataFromRedis(ip);
+        String codeFromRedis = RedisTool.getInstance().readDataFromRedis(ip).toLowerCase();
+        code = code.toLowerCase();
         if (null != codeFromRedis && codeFromRedis.equals(code)){
             return true;
         }else {

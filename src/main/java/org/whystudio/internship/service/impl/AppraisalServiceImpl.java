@@ -9,6 +9,7 @@ import org.whystudio.internship.controller.ControllerUtil;
 import org.whystudio.internship.entity.*;
 import org.whystudio.internship.entity.Appraisal;
 import org.whystudio.internship.mapper.AppraisalMapper;
+import org.whystudio.internship.mapper.AppraisaldateMapper;
 import org.whystudio.internship.mapper.StudentMapper;
 import org.whystudio.internship.mapper.TeacherMapper;
 import org.whystudio.internship.service.IAppraisalService;
@@ -20,6 +21,7 @@ import org.whystudio.internship.vo.JsonResult;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,8 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
 
     @Autowired
     TeacherMapper teacherMapper;
+    @Autowired
+    AppraisaldateMapper appraisaldateMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -99,11 +103,19 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
     }
 
     @Override
+    @Transactional
     public Map<String, String> getAppraisalInfoInJodFormatByStuno(String stuno) {
         LambdaQueryWrapper<Appraisal> lambdaQueryWrapper = Wrappers.lambdaQuery();
         List<Appraisal> appraisalList = appraisalMapper.selectList(lambdaQueryWrapper.eq(Appraisal::getStuno, stuno).select());
         if (appraisalList == null || appraisalList.size() < 1){
-            return null;
+            Appraisal appraisal = new Appraisal();
+            Appraisaldate appraisaldate = new Appraisaldate();
+            appraisal.setStuno(stuno);
+            appraisaldate.setStuno(stuno);
+            appraisalMapper.insert(appraisal);
+            appraisaldateMapper.insert(appraisaldate);
+            appraisalList = new ArrayList<>();
+            appraisalList.add(appraisal);
         }
         Appraisal appraisal = appraisalList.get(0);
         LambdaQueryWrapper<Appraisaldate> lambdaQueryWrapper1 = Wrappers.lambdaQuery();
@@ -120,8 +132,8 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
         params.put("${name}", student.getName());
         params.put("${stuno}", student.getStuno());
         params.put("${corp_name}", student.getCorp());
-        params.put("${start}", student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        params.put("${end}", student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${start}", student.getStarttime()==null?"":student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${end}", student.getEndtime()==null?"":student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${content}", appraisal.getContent());
         params.put("${summary}", appraisal.getSummary());

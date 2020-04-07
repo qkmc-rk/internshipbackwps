@@ -223,7 +223,7 @@ public class JodService {
                                 Duration.between(start, LocalDateTime.now()).getSeconds());
                     }
                 } catch (Exception e) {
-                    log.error(e.getMessage());
+                    e.printStackTrace();
                     pdf.setFailed(true);
                     pdfService.saveOrUpdate(pdf);
                     continue;
