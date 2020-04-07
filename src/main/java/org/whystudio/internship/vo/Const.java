@@ -47,4 +47,34 @@ public class Const {
     public static final String STUDENT_TYPE = "student";
     public final String STUDENT_TYPE_ = "student";
 
+
+    /**
+     * 优先级常量
+     */
+    public static final String PERFECT = "优秀";
+    public  final String PERFECT_ = "优秀";
+    public static final String GOOD = "良好";
+    public  final String GOOD_ = "良好";
+    public static final String USUAL = "中等";
+    public  final String USUAL_ = "中等";
+    public static final String PASS = "及格";
+    public  final String PASS_ = "及格";
+    public static final String NO_PASS = "不及格";
+    public  final String NO_PASS_ = "不及格";
+
+    public static final int STAGE1 = 1;
+    public final int STAGE1_ = 1;
+    public static final int STAGE2 = 2;
+    public final int STAGE2_ = 2;
+
+    // 认证参数 管理员可以访问任何接口
+    public static final int AUTH_STUDENT = 2;
+    public final int _AUTH_STUDENT = 2;
+    public static final int AUTH_TEACHER = 3;
+    public final int _AUTH_TEACHER = 3;
+    public static final int AUTH_ADMIN = 4;
+    public final int _AUTH_ADMIN = 4;
+    public static final int AUTH_ALL = 5;
+    public final int _AUTH_ALL = 5;
+
 }

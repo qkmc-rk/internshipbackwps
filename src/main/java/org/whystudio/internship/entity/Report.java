@@ -39,34 +39,34 @@ public class Report implements Serializable {
     private LocalDateTime modified;
 
     @ApiModelProperty(value = "第一阶段指导方式")
-    private String stage1GuideWay;
+    private String stage1GuideWay = "";
 
     @ApiModelProperty(value = "第一阶段实习总结")
-    private String stage1Summary;
+    private String stage1Summary = "";
 
     @ApiModelProperty(value = "第一阶段学院实习指导教师评语")
-    private String stage1Comment;
+    private String stage1Comment = "";
 
     @ApiModelProperty(value = "第一阶段实习成绩评定")
-    private String stage1Grade;
+    private String stage1Grade = "";
 
     @ApiModelProperty(value = "第二阶段实习指导方式")
-    private String stage2GuideWay;
+    private String stage2GuideWay = "";
 
     @ApiModelProperty(value = "第二阶段实习总结")
-    private String stage2Summary;
+    private String stage2Summary = "";
 
     @ApiModelProperty(value = "第二阶段学院实习导师评语")
-    private String stage2Comment;
+    private String stage2Comment = "";
 
     @ApiModelProperty(value = "第二阶段实习成绩评定")
-    private String stage2Grade;
+    private String stage2Grade = "";
 
     @ApiModelProperty(value = "学院实习指导老师总评价")
-    private String totalEval;
+    private String totalEval = "";
 
     @ApiModelProperty(value = "学院实习指导老师总评优良中差")
-    private String totalGrade;
+    private String totalGrade = "";
 
 
 }

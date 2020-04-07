@@ -1,5 +1,6 @@
 package org.whystudio.internship.controller;
 
+import com.alibaba.fastjson.JSON;
 import org.whystudio.internship.vo.Const;
 import org.whystudio.internship.vo.JsonResult;
 
@@ -47,11 +48,27 @@ public class ControllerUtil {
         return jsonResult;
     }
 
+    public static <T> JsonResult<T> getSuccessResultBySelf(T data, Object... params) {
+        if (data instanceof String){
+            for (int i=0; i<params.length; i++){
+                ((String) data).replaceFirst("\\{}", JSON.toJSONString(params[i]));
+            }
+        }
+        return getSuccessResultBySelf(data);
+    }
+
     public static <T> JsonResult<T> getFalseResultMsgBySelf(String msg) {
         JsonResult jsonResult = new JsonResult<>();
         jsonResult.setMessage(msg);
         jsonResult.setStatus(Const.COMMON_ERROR);
         return jsonResult;
+    }
+
+    public static <T> JsonResult<T> getFalseResultMsgBySelf(String msg, Object... params) {
+        for (int i=0; i<params.length; i++){
+            msg.replaceFirst("\\{}", JSON.toJSONString(params[i]));
+        }
+        return getFalseResultMsgBySelf(msg);
     }
 
     /**

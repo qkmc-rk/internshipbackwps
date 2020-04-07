@@ -1,26 +1,18 @@
 package org.whystudio.internship.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.netty.util.internal.StringUtil;
-import org.graalvm.compiler.lir.alloc.lsra.LinearScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import org.whystudio.internship.controller.ControllerUtil;
-import org.whystudio.internship.entity.Appraisaldate;
 import org.whystudio.internship.entity.File;
 import org.whystudio.internship.mapper.FileMapper;
 import org.whystudio.internship.service.IFileService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.util.QiNiuTool;
 import org.whystudio.internship.vo.JsonResult;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -108,7 +100,6 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
 
     @Override
     public JsonResult getFileList() {
-
         List<File> fileList = fileMapper.selectList(null);
         return ControllerUtil.getSuccessResultBySelf(fileList);
 

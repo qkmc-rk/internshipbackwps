@@ -33,34 +33,33 @@ public class Appraisal implements Serializable {
     private String stuno;
 
     @ApiModelProperty(value = "实习内容")
-    private String content;
+    private String content = "";
 
     @ApiModelProperty(value = "自我总结")
-    private String summary;
+    private String summary = "";
 
     @ApiModelProperty(value = "校外导师意见")
-    private String corpTeacherOpinion;
+    private String corpTeacherOpinion = "";
 
     @ApiModelProperty(value = "校外导师打分")
-    private String corpTeacherGrade;
+    private String corpTeacherGrade = "";
 
     @ApiModelProperty(value = "实习单位意见")
-    private String corpOpinion;
+    private String corpOpinion = "";
 
     @ApiModelProperty(value = "学院导师成绩评定")
-    private String teacherGrade;
+    private String teacherGrade = "";
 
     @ApiModelProperty(value = "综合实习成绩评定")
-    private String synthGrade;
+    private String synthGrade = "";
 
     @ApiModelProperty(value = "学院实习领导小组意见")
-    private String leaderOpinion;
+    private String leaderOpinion = "";
 
     @ApiModelProperty(value = "创建时间")
-    private LocalDateTime created;
+    private LocalDateTime created = LocalDateTime.now();
 
     @ApiModelProperty(value = "修改时间")
-    private LocalDateTime modified;
-
+    private LocalDateTime modified =  LocalDateTime.now();
 
 }

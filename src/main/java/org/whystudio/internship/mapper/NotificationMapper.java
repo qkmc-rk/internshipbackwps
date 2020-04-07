@@ -1,8 +1,12 @@
 package org.whystudio.internship.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 import org.whystudio.internship.entity.Notification;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,4 +20,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 @Repository
 public interface NotificationMapper extends BaseMapper<Notification> {
 
+    /**
+     * 查询id上下各一条的记录
+     * @param id
+     * @return
+     */
+    @Select(" SELECT * from notification where id in " +
+            " ((SELECT id from notification where id < #{id} ORDER BY id desc limit 1), " +
+            " #{id}, " +
+            " (select id from notification where id > #{id} order by id asc limit 1)); ")
+    List<Notification> selectNearId(@Param("id") Integer id);
 }
