@@ -162,7 +162,7 @@ public class IpTool {
             return ip;
         } else {
             try {
-                Enumeration<?> e1 = (Enumeration<?>) NetworkInterface
+                Enumeration<?> e1 = NetworkInterface
                         .getNetworkInterfaces();
                 while (e1.hasMoreElements()) {
                     NetworkInterface ni = (NetworkInterface) e1.nextElement();

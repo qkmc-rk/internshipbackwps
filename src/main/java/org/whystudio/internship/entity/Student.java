@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -88,9 +89,11 @@ public class Student implements Serializable {
     private String position = "";
 
     @ApiModelProperty(value = "实习开始时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime starttime = LocalDateTime.now();
 
     @ApiModelProperty(value = "实习结束时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endtime = LocalDateTime.now();
 
     @ApiModelProperty(value = "导师工号")

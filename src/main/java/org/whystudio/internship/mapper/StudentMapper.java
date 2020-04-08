@@ -38,10 +38,22 @@ public interface StudentMapper extends BaseMapper<Student> {
      * @param teachNo
      * @return
      */
-    @Select("select student.*,case when CHARACTER_LENGTH(report.stage1_summary)>0 then 1 else 0 end as reportStage1Summary,\n" +
-            "case when CHARACTER_LENGTH(report.stage2_summary)>0 then 1 else 0 end as reportStage2Summary,\n" +
-            "case when CHARACTER_LENGTH(appraisal.content)>0 then 1 else 0 end as appraisalContent, \n" +
-            "case when CHARACTER_LENGTH(appraisal.summary)>0 then 1 else 0 end as appraisalSummary \n" +
+    @Select("select student.*," +
+            "case when CHARACTER_LENGTH(report.stage1_summary)>0 then 1 else 0 end as reportStage1Summary, " +
+            "case when CHARACTER_LENGTH(report.stage1_comment)>0 then 1 else 0 end as reportStage1Comment, " +
+            "case when CHARACTER_LENGTH(report.stage1_grade)>0 then 1 else 0 end as reportStage1Grade, " +
+            "case when CHARACTER_LENGTH(report.stage2_summary)>0 then 1 else 0 end as reportStage2Summary, " +
+            "case when CHARACTER_LENGTH(report.stage2_comment)>0 then 1 else 0 end as reportStage2Comment, " +
+            "case when CHARACTER_LENGTH(report.stage2_grade)>0 then 1 else 0 end as reportStage2Grade, " +
+            "case when CHARACTER_LENGTH(report.total_eval)>0 then 1 else 0 end as reportTotalEval, " +
+            "case when CHARACTER_LENGTH(report.total_grade)>0 then 1 else 0 end as reportTotalGrade, " +
+            "case when CHARACTER_LENGTH(appraisal.content)>0 then 1 else 0 end as appraisalContent,  " +
+            "case when CHARACTER_LENGTH(appraisal.summary)>0 then 1 else 0 end as appraisalSummary,  " +
+            "case when CHARACTER_LENGTH(appraisal.corp_teacher_opinion)>0 then 1 else 0 end as corpTeacherOpinion,  " +
+            "case when CHARACTER_LENGTH(appraisal.corp_teacher_grade)>0 then 1 else 0 end as corpTeacherGrade,  " +
+            "case when CHARACTER_LENGTH(appraisal.corp_opinion)>0 then 1 else 0 end as corpOpinion,  " +
+            "case when CHARACTER_LENGTH(appraisal.teacher_grade)>0 then 1 else 0 end as appraisalTeacherGrade,  " +
+            "case when CHARACTER_LENGTH(appraisal.leader_opinion)>0 then 1 else 0 end as leaderOpinion  " +
             "from student \n" +
             "LEFT JOIN report ON student.stuno=report.stuno \n" +
             "LEFT JOIN appraisal ON student.stuno=appraisal.stuno \n" +
