@@ -403,13 +403,14 @@ public class JodService {
                     int end = start + k.length();
                     contentRs = new StringBuilder();
                     contentRs.append(content, 0, start);
-                    contentRs.append(params.get(k));
-                    contentRs.append(content.substring(end));
-                    if (contentRs.toString().contains("null")) {
-                        para.insertNewRun(0).setText("  ");
+                    //判断是否为空，避免出现"null"字符串
+                    if (params.get(k) == null) {
+                        contentRs.append("  ");
                     } else {
-                        para.insertNewRun(0).setText(contentRs.toString());
+                        contentRs.append(params.get(k));
                     }
+                    contentRs.append(content.substring(end));
+                    para.insertNewRun(0).setText(contentRs.toString());
                     // 设置para的run的格式等内容
                     para.getRuns().get(0).setFontFamily(fontFamily);
                     para.getRuns().get(0).setFontSize(fontSize);
