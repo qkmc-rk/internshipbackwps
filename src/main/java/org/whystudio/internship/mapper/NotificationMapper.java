@@ -3,6 +3,7 @@ package org.whystudio.internship.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 import org.whystudio.internship.entity.Notification;
 
@@ -30,4 +31,10 @@ public interface NotificationMapper extends BaseMapper<Notification> {
             " #{id}, " +
             " (select id from notification where id > #{id} order by id asc limit 1)); ")
     List<Notification> selectNearId(@Param("id") Integer id);
+
+    /**
+     * 查询记录+1
+     */
+    @Update("UPDATE notification SET readnum=readnum+1 WHERE id=#{id};\n")
+    Integer UpdateReadNum(@Param("id") Integer id);
 }
