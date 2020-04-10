@@ -50,12 +50,6 @@ dependencies {
     //低于4.3版本的httpClient报错java.lang.NoClassDefFoundError
     implementation 'org.apache.httpcomponents:httpclient:4.3.3'
 
-    //office util
-    implementation 'org.apache.poi:poi-ooxml:4.0.1'
-    implementation 'org.apache.poi:poi-ooxml-schemas:4.0.1'
-    implementation 'org.jodconverter:jodconverter-spring-boot-starter:4.1.1'
-
-
     //七牛云
     compile group: 'com.qiniu', name: 'qiniu-java-sdk', version: '7.2.28'
     compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.3.1.tmp'

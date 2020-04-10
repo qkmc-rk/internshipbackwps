@@ -2,12 +2,9 @@ package org.whystudio.internship.util;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xwpf.usermodel.*;
-import org.jodconverter.DocumentConverter;
-import org.jodconverter.office.OfficeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+
 import org.springframework.stereotype.Service;
 import org.whystudio.internship.entity.Pdf;
 import org.whystudio.internship.service.IAppraisalService;
@@ -21,8 +18,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * word生成服务
@@ -30,8 +25,8 @@ import java.util.regex.Pattern;
  * 但是似乎它又不太属于服务, 暂时放到util包下，后期在改进
  */
 
-@Service
 @Slf4j
+@Service
 public class JodService {
 
     @Autowired
@@ -43,8 +38,6 @@ public class JodService {
     @Autowired
     IPdfService pdfService;
 
-    @Autowired
-    DocumentConverter documentConverter;
 
     /**
      * 实习报告册模板的保存位置
@@ -61,7 +54,7 @@ public class JodService {
     /**
      * 基本保存路径
      */
-    public static String BASE_SAVE_PATH = MultiPlatformPathTool.isWindows() ? "static\\" : "static/";
+    public static String BASE_SAVE_PATH;
 
     public static Long REC_THRESHOLD = 10L;
     /**
@@ -90,6 +83,42 @@ public class JodService {
     public void init() {
         jodService = this;
         executeJodTask(); // 开始执行转换任务,
+        // 创建pdf存放路径
+        File pdfDir = new File("static");
+        if (!pdfDir.exists()) {
+            pdfDir.mkdirs();
+        }
+        // 更新pdf路径为绝对路径
+        BASE_SAVE_PATH = pdfDir.getAbsolutePath() + File.separator;
+
+        // 创建word模板存放路径
+        File wordDir = new File("word");
+        if (!wordDir.exists()) {
+            wordDir.mkdirs();
+        }
+
+        // 复制出word模板文件 操作jar包内的文件会报错
+        File targetReport = new File(wordDir.getAbsoluteFile() + File.separator + "report.docx");
+        File targetIdentify = new File(wordDir.getAbsoluteFile() + File.separator + "identify.docx");
+        try (InputStream reprotStream = new ClassPathResource(REPORT_PATH).getInputStream();
+             InputStream identifyStream = new ClassPathResource(IDENTIFY_PATH).getInputStream();
+             FileOutputStream targetReportStream = new FileOutputStream(targetReport);
+             FileOutputStream targetIdentifyStream = new FileOutputStream(targetIdentify)) {
+            byte[] buffer = new byte[1024];
+            int length;
+
+            while ((length = reprotStream.read(buffer)) > 0) {
+                targetReportStream.write(buffer, 0, length);
+            }
+            while ((length = identifyStream.read(buffer)) > 0) {
+                targetIdentifyStream.write(buffer, 0, length);
+            }
+            IDENTIFY_PATH = targetIdentify.getAbsolutePath();
+            REPORT_PATH = targetReport.getAbsolutePath();
+        } catch (IOException e) {
+            log.error("模板文件复制失败,无法完成PDF转换");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -179,38 +208,36 @@ public class JodService {
                         pdf.setReport(jodItem.getReport());
                         pdf.setStuno(jodItem.getStuno());
                         pdfService.saveOrUpdate(pdf);
-                        // 执行转换任务
-                        XWPFDocument xwpfDocument;
+
                         // 从数据库读取report、reportData或者appraisal、appraisalDate, 然后生成params
                         Map<String, String> params;
-                        String fileName = MD5Tool.md5(String.valueOf(new Date().getTime()));
+                        String targetPath = BASE_SAVE_PATH + MD5Tool.md5(String.valueOf(LocalDateTime.now())) + ".pdf";
+                        File sourceDocx;
                         if (jodItem.getReport()) {
                             params = reportService.getReportInfoInJodFormatByStuno(jodItem.getStuno());
                             if (params.isEmpty()) {
                                 continue;
                             }
-                            xwpfDocument = readXWPFDocumentFromFile(REPORT_PATH);
+                            sourceDocx = new File(REPORT_PATH);
                         } else {
                             params = appraisalService.getAppraisalInfoInJodFormatByStuno(jodItem.getStuno());
                             if (params.isEmpty()) {
                                 continue;
                             }
-                            xwpfDocument = readXWPFDocumentFromFile(IDENTIFY_PATH);
+                            sourceDocx = new File(IDENTIFY_PATH);
                         }
-                        replaceInTable(xwpfDocument, params);
-                        //存到本地临时文件夹
-                        File sourceDocx = new File(BASE_SAVE_PATH + fileName + ".docx");
-                        if (!sourceDocx.exists()) {
-                            sourceDocx.createNewFile();
+
+                        boolean isSuccess = JacobTool.getTool().toPdf(sourceDocx.getAbsolutePath(), targetPath, params);
+
+                        if (!isSuccess) {
+                            log.error("PDF生成失败,学号:{}", jodItem.getStuno());
+                            continue;
                         }
-                        FileOutputStream outputStream
-                                = new FileOutputStream(sourceDocx);
-                        xwpfDocument.write(outputStream);
-                        // 转换成pdf
-                        File targetPdf = new File(BASE_SAVE_PATH + fileName + ".pdf");
-                        documentConverter.convert(sourceDocx).to(targetPdf).execute();
                         // 上传到七牛云
-                        String url = QiNiuTool.uploadQiNiu(new FileInputStream(targetPdf), targetPdf.getName());
+                        File targetPdf = new File(targetPath);
+                        FileInputStream targetPdfStream = new FileInputStream(targetPdf);
+                        String url = QiNiuTool.uploadQiNiu(targetPdfStream, targetPdf.getName());
+                        targetPdfStream.close();
 
                         pdf.setUrl(url);
                         pdf.setConverting(false);
@@ -241,214 +268,5 @@ public class JodService {
                 }
             }
         }).start();
-    }
-
-    // ----- word处理方法 ----- //
-
-    /**
-     * 渲染并导出word文档, 返回输出路径.
-     *
-     * @param renderWordType :  "report" or "identify"
-     * @param params         :  渲染Word的参数
-     * @return: java.lang.String
-     */
-    public String exportWordToResponse(String renderWordType, String stuNo, Map<String, String> params) {
-        XWPFDocument xwpfDocument;
-        StringBuffer fileName = new StringBuffer(stuNo);
-        try {
-            if (renderWordType.equals("report")) {
-                xwpfDocument = readXWPFDocumentFromFile(REPORT_PATH);
-                fileName.append("_report_");
-            } else {
-                xwpfDocument = readXWPFDocumentFromFile(IDENTIFY_PATH);
-                fileName.append("_identify_");
-            }
-            fileName.append(System.currentTimeMillis());
-            replaceInTable(xwpfDocument, params);
-            String savePath = printToFile(xwpfDocument, fileName.toString(), BASE_SAVE_PATH);
-            if (savePath != null) {
-                return savePath;
-            }
-        } catch (Exception e) {
-            log.error(e.toString());
-        }
-        return null;
-    }
-
-
-    /**
-     * 通过路径读入word模板文件
-     *
-     * @param path word模板文件存储的位置
-     * @return 返回WXPFDocument对象(word)
-     * @throws IOException 流异常/xwpf异常
-     */
-    public XWPFDocument readXWPFDocumentFromFile(String path) throws IOException {
-        Resource resource = new ClassPathResource(path);
-        InputStream inputStream = resource.getInputStream();
-        XWPFDocument xwpfDocument = new XWPFDocument(inputStream);
-        close(inputStream);
-        return xwpfDocument;
-    }
-
-    /**
-     * 替换表格里面的变量 ${variable}
-     *
-     * @param doc
-     * @param params
-     */
-    public void replaceInTable(XWPFDocument doc, Map<String, String> params) {
-        Iterator<XWPFTable> iterator = doc.getTablesIterator();
-        XWPFTable table;
-        List<XWPFTableRow> rows;
-        List<XWPFTableCell> cells;
-        List<XWPFParagraph> paras;
-        while (iterator.hasNext()) {
-            table = iterator.next();
-            rows = table.getRows();
-            for (XWPFTableRow row : rows) {
-                cells = row.getTableCells();
-                for (XWPFTableCell cell : cells) {
-                    paras = cell.getParagraphs();
-                    for (XWPFParagraph para : paras) {
-                        this.replaceInPara(para, params);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 将word docx文件保存到本地文件中
-     *
-     * @param docx     当前编辑的docx文件
-     * @param fileName 要保存的docx文件的名字,不包括后缀<b>.docx</b>
-     * @param path
-     */
-    public String printToFile(XWPFDocument docx, String fileName, String path) {
-        if (MultiPlatformPathTool.isWindows()) {
-            path = System.getProperty("user.dir") + "\\" + path;
-        } else {
-            path = System.getProperty("user.dir") + "/" + path;
-        }
-
-        fileName += ".docx";
-        try {
-            File file = new File(path + fileName);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            FileOutputStream outputStream = new FileOutputStream(file);
-            docx.write(outputStream);
-            close(outputStream);
-            return fileName;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * 替换段落里面的变量 变量形式： ${variable}
-     *
-     * @param para   传入一个段落
-     * @param params 传入变量以及变量的值
-     */
-    private void replaceInPara(XWPFParagraph para, Map<String, String> params) {
-        if (this.matcher(para.getParagraphText()).find()) {
-            // 将paragraph中的变量内容替换成变量的值，然后在换回去
-            Set<String> keys = params.keySet();
-            String content = para.getParagraphText();
-            StringBuilder contentRs;
-            for (String k : keys) {
-                // 包含子串
-                if (para.getParagraphText().indexOf(k) != -1) {
-
-                    // 在删除旧的run之前需要将带有daoler符号的那个run的格式全部记录下来。
-                    List<XWPFRun> runs = para.getRuns();
-
-                    // 初始化需要保存的变量
-                    int textPosition = 0;
-                    int fontSize = 0;
-                    String fontFamily = "";
-                    // 使用会抛出异常
-                    // int    characterSpacing = 0;
-                    String color = "";
-                    int kerning = 0;
-                    UnderlinePatterns underline = null;
-                    VerticalAlign subscript = null;
-                    for (XWPFRun run : runs) {
-                        // $符号是变量起始位置的符号,这个$符的格式就是变量在word中的格式
-                        if (-1 != run.text().indexOf("$")) {
-                            textPosition = run.getTextPosition();
-                            fontSize = run.getFontSize();
-                            fontFamily = run.getFontFamily();
-                            // characterSpacing = run.getCharacterSpacing(); //使用会抛出异常
-                            color = run.getColor();
-                            kerning = run.getKerning();
-                            underline = run.getUnderline();
-                            subscript = run.getSubscript();
-                        }
-                    }
-                    // 设置新的run之前删除旧的run
-                    int size = para.getRuns().size();
-                    while (size > 0) {
-                        para.removeRun(0);
-                        size = para.getRuns().size();
-                    }
-                    para.removeRun(0);  //这一句是多余的吧?既生之,何弃之.
-
-                    // 设置新的run
-                    int start = content.indexOf(k);
-                    int end = start + k.length();
-                    contentRs = new StringBuilder();
-                    contentRs.append(content, 0, start);
-                    //判断是否为空，避免出现"null"字符串
-                    if (params.get(k) == null) {
-                        contentRs.append("  ");
-                    } else {
-                        contentRs.append(params.get(k));
-                    }
-                    contentRs.append(content.substring(end));
-                    para.insertNewRun(0).setText(contentRs.toString());
-                    // 设置para的run的格式等内容
-                    para.getRuns().get(0).setFontFamily(fontFamily);
-                    para.getRuns().get(0).setFontSize(fontSize);
-                    // para.getRuns().get(0).setCharacterSpacing(characterSpacing);//使用会抛出异常
-                    para.getRuns().get(0).setColor(color);
-                    para.getRuns().get(0).setUnderline(underline);
-                    para.getRuns().get(0).setTextPosition(textPosition);
-                    para.getRuns().get(0).setKerning(kerning);
-                    para.getRuns().get(0).setSubscript(subscript);
-                }
-            }
-        }
-    }
-
-    private Matcher matcher(String str) {
-        String regStr = "\\$\\{(.+?)\\}";
-        Pattern pattern = Pattern.compile(regStr, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(str);
-        return matcher;
-    }
-
-    public void close(InputStream inputStream) {
-        if (inputStream != null) {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void close(OutputStream outputStream) {
-        if (outputStream != null) {
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
