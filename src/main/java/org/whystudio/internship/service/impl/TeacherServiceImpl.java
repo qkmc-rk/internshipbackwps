@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mchange.lang.IntegerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.whystudio.internship.controller.ControllerUtil;
 import org.whystudio.internship.entity.*;
@@ -293,5 +294,4 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
             return ControllerUtil.getFalseResultMsgBySelf("更新报告册失败");
         }
     }
-
 }

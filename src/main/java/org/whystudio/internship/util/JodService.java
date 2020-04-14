@@ -26,7 +26,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 
 @Slf4j
-@Service
+//@Service
+@Deprecated
 public class JodService {
 
     @Autowired
@@ -226,14 +227,16 @@ public class JodService {
                             }
                             sourceDocx = new File(IDENTIFY_PATH);
                         }
-
-                        boolean isSuccess = JacobTool.getTool().toPdf(sourceDocx.getAbsolutePath(), targetPath, params);
-
+                        long start2 = System.currentTimeMillis();
+                        boolean isSuccess =  false/*JacobTool.getTool().toPdf(sourceDocx.getAbsolutePath(), targetPath, params)*/;
                         if (!isSuccess) {
                             log.error("PDF生成失败,学号:{}", jodItem.getStuno());
                             continue;
                         }
+                        log.info("PDF转换耗时：{}", System.currentTimeMillis() - start2);
+
                         // 上传到七牛云
+                        start2 = System.currentTimeMillis();
                         File targetPdf = new File(targetPath);
                         FileInputStream targetPdfStream = new FileInputStream(targetPdf);
                         String url = QiNiuTool.uploadQiNiu(targetPdfStream, targetPdf.getName());
@@ -242,6 +245,7 @@ public class JodService {
                         pdf.setUrl(url);
                         pdf.setConverting(false);
                         pdfService.saveOrUpdate(pdf);
+                        log.info("文件上传耗时:{}", System.currentTimeMillis() - start2);
                         // 嘿嘿
                         Long durex = Duration.between(start, LocalDateTime.now()).getSeconds();
                         if (durex > REC_THRESHOLD) {

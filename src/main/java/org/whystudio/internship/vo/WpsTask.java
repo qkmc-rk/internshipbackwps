@@ -1,33 +1,33 @@
-package org.whystudio.internship.util;
+package org.whystudio.internship.vo;
 
 import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.ComThread;
 import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
 /**
  * @author Ning
  */
-public class JacobTool {
-
-    private static JacobTool tool;
+@Slf4j
+public class WpsTask {
 
     /**
-     * word运行程序对象
+     * wps运行程序对象
      */
     private ActiveXComponent word;
+
+    /**
+     * word文档集合
+     */
+    private Dispatch documents;
 
     /**
      * word文档对象
      */
     private Dispatch doc;
 
-    /**
-     * word文档集合
-     */
-    private Dispatch documents;
 
     /**
      * 选定的范围或插入点
@@ -36,26 +36,33 @@ public class JacobTool {
 
 
     /**
-     * 设置窗口是否可见
+     * 窗口是否可见
      */
-    private final boolean visible = false;
+    private final boolean VISIBLE = true;
 
     /**
      * 组件常量,退出时不保存
      */
-    private final boolean saveOnExit = false;
-
+    private static final boolean SAVE_ON_EXIT = false;
 
     /**
      * 组件常量,另存为中表示PDF
      */
-    private static final int wdFormatPDF = 17;
+    public static final int WD_FORMATPDF = 17;
 
-    public static synchronized JacobTool getTool() {
-        if (null == tool) {
-            tool = new JacobTool();
-        }
-        return tool;
+
+    public WpsTask() {
+        this(false);
+    }
+
+
+    /**
+     * @param visible 窗口是否可见
+     */
+    public WpsTask(boolean visible) {
+        word = new ActiveXComponent("Kwps.Application");
+        word.setProperty("Visible", visible);
+        documents = word.getProperty("Documents").toDispatch();
     }
 
 
@@ -64,27 +71,21 @@ public class JacobTool {
      *
      * @param docPath 文档绝对路径
      */
-    private void open(String docPath) {
-        //  初始化com线程
-        ComThread.InitMTA();
-        word = new ActiveXComponent("Word.Application");
-        // 设置窗口不可见
-        word.setProperty("Visible", visible);
-        documents = word.getProperty("Documents").toDispatch();
+    public void open(String docPath) {
         doc = Dispatch.call(documents, "Open", docPath).toDispatch();
         selection = Dispatch.get(word, "Selection").toDispatch();
     }
 
 
     /**
-     * 光标移动到文档开头
+     * 光标移动到行首
      */
-    private void moveStart() {
+    public void moveStart() {
         Dispatch.call(selection, "HomeKey", new Variant(6));
     }
 
-    private void replace(String source, String target) {
-        // 判断一下字符串是否未null 避免pdf中出现null字符串
+    public void replace(String source, String target) {
+        // 判断一下字符串是否为null 避免pdf中出现null字符串
         target = null == target || "null".equals(target) ? "" : target;
         moveStart();
         Dispatch find = Dispatch.call(selection, "Find").toDispatch();
@@ -96,14 +97,13 @@ public class JacobTool {
         Dispatch.put(find, "Format", "True");
         //  大小写匹配
         Dispatch.put(find, "MatchCase", "True");
-        //  全字匹配
-        Dispatch.put(find, "MatchWholeWord", "True");
+        //  全字匹配 不开启 否则模板标签后必须是空格才能被选中
+//        Dispatch.put(find, "MatchWholeWord", "True");
         //  查找并选中
-        boolean isExecute = Dispatch.call(find, "Execute").getBoolean();
-        if (isExecute) {
-            // 替换
-            Dispatch.put(selection, "Text", target);
-        }
+        Dispatch.call(find, "Execute").getBoolean();
+        // 替换
+        Dispatch.put(selection, "Text", target);
+
     }
 
     /**
@@ -111,24 +111,23 @@ public class JacobTool {
      *
      * @param targetPath 文档输出全路径
      */
-    private void saveAsPdf(String targetPath) {
-        Dispatch.call(doc, "SaveAs", targetPath, wdFormatPDF);
+    public void saveAsPdf(String targetPath) {
+        Dispatch.call(doc, "SaveAs", targetPath, WD_FORMATPDF);
     }
 
     /**
      * 关闭word文档
      */
-    private void close() {
-        Dispatch.call(doc, "Close", saveOnExit);
+    public void close() {
+        Dispatch.call(doc, "Close", SAVE_ON_EXIT);
     }
 
+
     /**
-     * 关闭word程序
+     * 退出wps程序
      */
-    private void quit() {
-        Dispatch.call(word, "Quit", saveOnExit);
-        // 释放com线程
-        ComThread.Release();
+    public void quit() {
+        Dispatch.call(word, "Quit", SAVE_ON_EXIT);
     }
 
     /**
@@ -144,13 +143,14 @@ public class JacobTool {
             open(sourcePath);
             params.forEach(this::replace);
             saveAsPdf(targetPath);
-            close();
         } catch (Exception e) {
+            log.error(e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
-            quit();
+            close();
         }
         return true;
     }
+
 }

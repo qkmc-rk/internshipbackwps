@@ -11,6 +11,7 @@ import org.whystudio.internship.controller.ControllerUtil;
 import org.whystudio.internship.entity.Pdf;
 import org.whystudio.internship.mapper.PdfMapper;
 import org.whystudio.internship.service.IPdfService;
+import org.whystudio.internship.util.ConverterTool;
 import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.util.JodService;
 import org.whystudio.internship.util.QiNiuTool;
@@ -25,6 +26,7 @@ import java.util.*;
  * pdf文件信息存取服务
  * 服务实现类
  * </p>
+ *
  * @author mrruan
  * @since 2020-03-05
  */
@@ -35,6 +37,7 @@ public class PdfServiceImpl extends ServiceImpl<PdfMapper, Pdf> implements IPdfS
 
     @Autowired
     PdfMapper pdfMapper;
+
 
 
     @Override
@@ -63,10 +66,10 @@ public class PdfServiceImpl extends ServiceImpl<PdfMapper, Pdf> implements IPdfS
         String stuno = JWTTool.findToken(token);
         LambdaQueryWrapper<Pdf> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(Pdf::getStuno, stuno);
-        if (null != report && report){
+        if (null != report && report) {
             // 实习报告册
             queryWrapper.eq(Pdf::getReport, true);
-        }else if (null != report){
+        } else if (null != report) {
             // 鉴定表
             queryWrapper.eq(Pdf::getReport, false);
         }
@@ -78,8 +81,8 @@ public class PdfServiceImpl extends ServiceImpl<PdfMapper, Pdf> implements IPdfS
 
     @Override
     public JsonResult deleteByIds(String token, List<Long> pdfIds) {
-        if (pdfIds == null && pdfIds.size() < 1){
-            return ControllerUtil.getFalseResultMsgBySelf("数据错误:{}",pdfIds);
+        if (pdfIds == null && pdfIds.size() < 1) {
+            return ControllerUtil.getFalseResultMsgBySelf("数据错误:{}", pdfIds);
         }
         String stuno = JWTTool.findToken(token);
         List<Pdf> pdfs = pdfMapper.selectByStunoAndReportAndIds(stuno, pdfIds);
@@ -87,13 +90,13 @@ public class PdfServiceImpl extends ServiceImpl<PdfMapper, Pdf> implements IPdfS
         List<String> keys = new ArrayList<>();
         for (Pdf pdf :
                 pdfs) {
-            if (!pdf.getUrl().equals("-")){
+            if (!pdf.getUrl().equals("-")) {
                 // 此处应该不会有异常的。。
                 keys.add(pdf.getUrl().split("/")[1]);
             }
         }
         keys.forEach(log::info);
-        log.info("{}",QiNiuTool.deleteQiNiuFileBatch(keys.toArray(new String[keys.size()])));
+        log.info("{}", QiNiuTool.deleteQiNiuFileBatch(keys.toArray(new String[keys.size()])));
         LambdaUpdateWrapper<Pdf> lambdaUpdateWrapper = Wrappers.lambdaUpdate();
         lambdaUpdateWrapper.in(Pdf::getId, pdfIds);
         lambdaUpdateWrapper.eq(Pdf::getStuno, stuno);
@@ -101,18 +104,10 @@ public class PdfServiceImpl extends ServiceImpl<PdfMapper, Pdf> implements IPdfS
         return ControllerUtil.getSuccessResultBySelf("删除了" + rows + "条数据");
     }
 
-    private JsonResult execute(String token, Boolean report){
+    private JsonResult execute(String token, Boolean report) {
         String stuno = JWTTool.findToken(token);
-        //先判断是否有任务正在执行
-        Boolean existMyTask = JodService.jodService.existMyTask(stuno, report);
-        if (existMyTask){
-            return ControllerUtil.customResult(Const.OPERATION_SUCCESS, JodService.jodService.getPosition(stuno,report), "");
-        }
-        JodItem jodItem = new JodItem();
-        jodItem.setStuno(stuno);
-        jodItem.setReport(report);
-        if (JodService.jodService.addTask(jodItem)){
-            return ControllerUtil.customResult(Const.OPERATION_SUCCESS, JodService.jodService.getPosition(stuno, report), "");
+        if (ConverterTool.tool.add(stuno, report)) {
+            return ControllerUtil.customResult(Const.OPERATION_SUCCESS, "添加成功", "");
         }
         return ControllerUtil.customResult(Const.COMMON_ERROR, "任务插入队列失败!队列已满", "");
     }
