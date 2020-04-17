@@ -2,8 +2,10 @@ package org.whystudio.internship.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.time.LocalDateTime;
 import java.io.Serializable;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,12 +23,12 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="Appraisal对象", description="实习鉴定表")
+@ApiModel(value = "Appraisal对象", description = "实习鉴定表")
 public class Appraisal implements Serializable {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
-      @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "学号")
@@ -60,6 +62,6 @@ public class Appraisal implements Serializable {
     private LocalDateTime created = LocalDateTime.now();
 
     @ApiModelProperty(value = "修改时间")
-    private LocalDateTime modified =  LocalDateTime.now();
+    private LocalDateTime modified = LocalDateTime.now();
 
 }

@@ -9,7 +9,6 @@ import org.whystudio.internship.entity.Pdf;
 import org.whystudio.internship.service.IAppraisalService;
 import org.whystudio.internship.service.IPdfService;
 import org.whystudio.internship.service.IReportService;
-import org.whystudio.internship.vo.WpsTask;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -201,5 +201,24 @@ public class ConverterTool {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+}
+
+
+class ConverterThreadFactory implements ThreadFactory {
+
+    private final AtomicInteger threadNumber = new AtomicInteger(1);
+    private final String namePrefix = "Converter-";
+
+    @Override
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(r, namePrefix + threadNumber.getAndIncrement());
+        if (t.isDaemon()) {
+            t.setDaemon(true);
+        }
+        if (t.getPriority() != Thread.NORM_PRIORITY) {
+            t.setPriority(Thread.NORM_PRIORITY);
+        }
+        return t;
     }
 }
