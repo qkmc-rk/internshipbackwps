@@ -41,11 +41,11 @@ public class RedisTool {
      *  存储数据到redis中
      * @param key key
      * @param value 值
-     * @param min 分钟
+     * @param days 天
      */
-    public void setDataToRedis(String key, String value, Integer min) {
+    public void setDataToRedis(String key, String value, Integer days) {
         ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
-        valueOperations.set(key, value, min, TimeUnit.MINUTES);
+        valueOperations.set(key, value, days, TimeUnit.DAYS);
     }
 
     public static RedisTool getInstance(){

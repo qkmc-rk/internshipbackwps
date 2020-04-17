@@ -19,6 +19,8 @@ import java.util.Date;
 @Service
 public class UserServiceImpl implements IUserService {
 
+    public static final int TOKEN_VALIDITY = 3;
+
     @Autowired
     StudentMapper studentMapper;
 
@@ -30,15 +32,15 @@ public class UserServiceImpl implements IUserService {
         password = MD5Tool.md5(password);
 
         //校验验证码
-        if (!VerifyCodeTool.verify(ip,verifyCode)){
+        if (!VerifyCodeTool.verify(ip, verifyCode)) {
             VerifyCodeTool.clean(ip);
             return ControllerUtil.customResult(Const.VERIFYCODE_WRONG, "验证码错误", null);
         }
         VerifyCodeTool.clean(ip);
-        if(type.equals(Const.TEACHER_TYPE)){
+        if (type.equals(Const.TEACHER_TYPE)) {
             Teacher teacher = teacherMapper.selectByTeachno(username);
             return loginCommon(teacher, password);
-        } else if (type.equals(Const.STUDENT_TYPE)){
+        } else if (type.equals(Const.STUDENT_TYPE)) {
             Student student = studentMapper.selectByStuno(username);
             return loginCommon(student, password);
         } else {
@@ -49,15 +51,15 @@ public class UserServiceImpl implements IUserService {
     @Override
     public JsonResult findPassword(String idcard, String username, String password, String type, String verifyCode, String ip) {
         //校验验证码
-        if (!VerifyCodeTool.verify(ip,verifyCode)){
+        if (!VerifyCodeTool.verify(ip, verifyCode)) {
             VerifyCodeTool.clean(ip);
             return ControllerUtil.customResult(Const.VERIFYCODE_WRONG, "验证码错误", null);
         }
         VerifyCodeTool.clean(ip);
-        if(type.equals(Const.TEACHER_TYPE)){
+        if (type.equals(Const.TEACHER_TYPE)) {
             Teacher teacher = teacherMapper.selectByTeachno(username);
             return changePassword(teacher, password, idcard);
-        } else if (type.equals(Const.STUDENT_TYPE)){
+        } else if (type.equals(Const.STUDENT_TYPE)) {
             Student student = studentMapper.selectByStuno(username);
             return changePassword(student, password, idcard);
         } else {
@@ -69,53 +71,55 @@ public class UserServiceImpl implements IUserService {
 
     /**
      * 哥哥写的代码妙吗?
+     *
      * @param user
      * @param password
      * @param <T>
      * @return
      */
-    private <T> JsonResult loginCommon(T user, String password){
-        if (null == user){
+    private <T> JsonResult loginCommon(T user, String password) {
+        if (null == user) {
             return ControllerUtil.customResult(Const.USERNAME_NOT_FOUND, "没有找到账号信息", null);
         }
 
-        if (user instanceof Teacher && !((Teacher)user).getPassword().toLowerCase()
-                .equals(password.toLowerCase())){
+        if (user instanceof Teacher && !((Teacher) user).getPassword().toLowerCase()
+                .equals(password.toLowerCase())) {
             return ControllerUtil.customResult(Const.PASSWORD_INVALID, "密码错误", null);
         }
-        if (user instanceof Student && !((Student)user).getPassword().toLowerCase()
-                .equals(password.toLowerCase())){
+        if (user instanceof Student && !((Student) user).getPassword().toLowerCase()
+                .equals(password.toLowerCase())) {
             return ControllerUtil.customResult(Const.PASSWORD_INVALID, "密码错误", null);
         }
 
         //登录成功
-        String token = MD5Tool.md5(Long.toString(new Date().getTime()));
-        boolean teacherBool = user instanceof Teacher && JWTTool.saveToken(((Teacher)user).getTeachno(), token,90);
-        boolean studentBool = user instanceof Student && JWTTool.saveToken(((Student)user).getStuno(), token,90);
-        if (teacherBool || studentBool){
-            return ControllerUtil.customResult(Const.LOGIN_SUCCESS, "登录成功",token);
-        }else {
+        String token = MD5Tool.md5(Long.toString(System.currentTimeMillis()));
+        boolean teacherBool = user instanceof Teacher && JWTTool.saveToken(((Teacher) user).getTeachno(), token, TOKEN_VALIDITY);
+        boolean studentBool = user instanceof Student && JWTTool.saveToken(((Student) user).getStuno(), token, TOKEN_VALIDITY);
+        if (teacherBool || studentBool) {
+            return ControllerUtil.customResult(Const.LOGIN_SUCCESS, "登录成功", token);
+        } else {
             return ControllerUtil.customResult(Const.COMMON_ERROR, "保存token出现问题,检查redis服务是否开启", null);
         }
     }
 
     /**
      * 改变密码
+     *
      * @param user
      * @param password
      * @param idcard
      * @param <T>
      * @return
      */
-    private <T> JsonResult changePassword(T user, String password, String idcard){
-        if (null == user){
+    private <T> JsonResult changePassword(T user, String password, String idcard) {
+        if (null == user) {
             return ControllerUtil.customResult(Const.USERNAME_NOT_FOUND, "没有找到账号信息", null);
         }
-        if (user instanceof Teacher && ((Teacher)user).getIdcard().toLowerCase().equals(idcard.toLowerCase())){
-            Teacher teacher = (Teacher)user;
+        if (user instanceof Teacher && ((Teacher) user).getIdcard().toLowerCase().equals(idcard.toLowerCase())) {
+            Teacher teacher = (Teacher) user;
             teacher.setPassword(MD5Tool.md5(password).toLowerCase());
             teacherMapper.updateById(teacher);
-        } else if (user instanceof Student && ((Student)user).getIdcard().toLowerCase().equals(idcard.toLowerCase())){
+        } else if (user instanceof Student && ((Student) user).getIdcard().toLowerCase().equals(idcard.toLowerCase())) {
             Student student = (Student) user;
             student.setPassword(MD5Tool.md5(password).toLowerCase());
             studentMapper.updateById(student);
