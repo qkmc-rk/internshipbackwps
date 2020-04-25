@@ -13,10 +13,8 @@ import org.whystudio.internship.mapper.PdfMapper;
 import org.whystudio.internship.service.IPdfService;
 import org.whystudio.internship.util.ConverterTool;
 import org.whystudio.internship.util.JWTTool;
-import org.whystudio.internship.util.JodService;
 import org.whystudio.internship.util.QiNiuTool;
 import org.whystudio.internship.vo.Const;
-import org.whystudio.internship.vo.JodItem;
 import org.whystudio.internship.vo.JsonResult;
 
 import java.util.*;

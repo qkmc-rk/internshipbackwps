@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class ConverterTool {
 
-    public static ConverterTool tool;
 
     /**
      * 线程池操作对象
@@ -72,10 +71,14 @@ public class ConverterTool {
 
     @Autowired
     IAppraisalService appraisalService;
+
     @Autowired
     IReportService reportService;
+
     @Autowired
     IPdfService pdfService;
+
+    public static ConverterTool tool;
 
     @PostConstruct
     public void init() {
@@ -86,13 +89,14 @@ public class ConverterTool {
                 queue, new ConverterThreadFactory());
         wpsTaskList = new ArrayList<>();
         // 创建Wps进程等待调用
+
         for (int i = 0; i < POOL_SIZE; i++) {
             wpsTaskList.add(new WpsTask());
         }
         File wordDir = new File("word");
         File pdfDir = new File("pdf");
         if (!wordDir.exists()) {
-            wordDir.mkdirs();
+            boolean mkdirResult = wordDir.mkdirs();
         }
         if (!pdfDir.exists()) {
             pdfDir.mkdirs();
@@ -109,7 +113,7 @@ public class ConverterTool {
         try {
             poolExecutor.execute(() -> {
                 long start = System.currentTimeMillis();
-                boolean result = false;
+                boolean result;
                 Pdf pdf = new Pdf();
                 pdf.setStuno(stuno);
                 pdf.setConverting(true);
@@ -171,8 +175,6 @@ public class ConverterTool {
 
     /**
      * 用于拷贝word模板文件
-     *
-     * @return
      */
     private void copyWordTempleate() {
 
@@ -191,6 +193,7 @@ public class ConverterTool {
             targetIdentify.createNewFile();
 
             byte[] buffer = new byte[1024];
+
             int length;
             while ((length = reportIs.read(buffer)) > 0) {
                 reportFos.write(buffer, 0, length);
@@ -208,11 +211,12 @@ public class ConverterTool {
 class ConverterThreadFactory implements ThreadFactory {
 
     private final AtomicInteger threadNumber = new AtomicInteger(1);
-    private final String namePrefix = "Converter-";
+
+    private static final String NAME_PREFIX = "Converter-";
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(r, namePrefix + threadNumber.getAndIncrement());
+        Thread t = new Thread(r, NAME_PREFIX + threadNumber.getAndIncrement());
         if (t.isDaemon()) {
             t.setDaemon(true);
         }
