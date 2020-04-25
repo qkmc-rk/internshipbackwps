@@ -36,12 +36,13 @@ public class PdfController extends BaseController {
         }
     }
 
-    @ApiOperation(value = "查询我的转换任务所在的位置和需要的时间")
-    @GetMapping("task")
-    @Auth(role = Const.AUTH_STUDENT)
-    public JsonResult myTask(@RequestHeader String token) {
-        return pdfService.myTask(token);
-    }
+//    @ApiOperation(value = "查询我的转换任务所在的位置和需要的时间")
+//    @GetMapping("task")
+//    @Auth(role = Const.AUTH_STUDENT)
+//    @Deprecated
+//    public JsonResult myTask(@RequestHeader String token) {
+//        return pdfService.myTask(token);
+//    }
 
     @ApiOperation(value = "获取我的转换过的文件, desc排序, 不传就是获取全部, true为report, false 为appraisal")
     @GetMapping("")

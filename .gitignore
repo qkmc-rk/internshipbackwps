@@ -32,3 +32,5 @@ out/
 .vscode/
 /word/
 /static/
+/pdf/
+/spy.log
