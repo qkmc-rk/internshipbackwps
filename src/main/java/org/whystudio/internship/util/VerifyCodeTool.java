@@ -8,28 +8,28 @@ public class VerifyCodeTool {
     /**
      * 将验证码存放到redis, 存IP地址
      * IP地址校验
-     * @param ip ip地址
+     *
+     * @param ip   ip地址
      * @param code 验证码
      */
-    public static void setVerifyCodeToRedis(String ip, String code){
+    public static void setVerifyCodeToRedis(String ip, String code) {
         // 验证码有效期30分钟
-        RedisTool.getInstance().setDataToRedis(ip,code,30);
+        RedisTool.getInstance().setDataToRedis(ip, code, 30);
     }
 
     /**
-     *
      * 验证 验证码
-     * @param ip ip地址
+     *
+     * @param ip   ip地址
      * @param code 验证码
      * @return
-     *
      */
-    public static boolean verify(String ip, String code){
-        String codeFromRedis = RedisTool.getInstance().readDataFromRedis(ip).toLowerCase();
+    public static boolean verify(String ip, String code) {
+        String codeFromRedis = RedisTool.getInstance().readDataFromRedis(ip);
         code = code.toLowerCase();
-        if (null != codeFromRedis && codeFromRedis.equals(code)){
+        if (null != codeFromRedis && codeFromRedis.toLowerCase().equals(code)) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
