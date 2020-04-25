@@ -19,7 +19,6 @@ import org.whystudio.internship.entity.Weblog;
 import org.whystudio.internship.service.IWeblogService;
 import org.whystudio.internship.util.IpTool;
 import org.whystudio.internship.util.JWTTool;
-import org.whystudio.internship.vo.JsonResult;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
@@ -62,6 +61,7 @@ public class WeblogAspect {
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         LocalDateTime startTime = LocalDateTime.now();
         Weblog weblog = new Weblog();
+        Object result = joinPoint.proceed();
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         Signature signature = joinPoint.getSignature();
@@ -82,11 +82,12 @@ public class WeblogAspect {
         weblog.setIp(IpTool.getIpAddr(request));
         weblog.setMethod(request.getMethod());
         weblog.setParameter(getParameter(method, joinPoint.getArgs()));
+//        weblog.setResult(null == result ? null : result.toString().substring(0,5000));
         weblog.setSpendtime((int) Duration.between(startTime, endTime).toMillis());
         weblog.setStarttime(startTime);
-        log.info(String.valueOf(weblog));
+//        log.info(String.valueOf(weblog));
         weblogService.save(weblog);
-        return weblog;
+        return result;
     }
 
 
