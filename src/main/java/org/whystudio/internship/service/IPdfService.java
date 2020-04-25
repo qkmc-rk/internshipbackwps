@@ -18,23 +18,19 @@ public interface IPdfService extends IService<Pdf> {
 
     /**
      * 添加转换pdf的任务到后台队列
+     *
      * @param token
      * @return
      */
     JsonResult executeConvertReportTask(String token);
+
     JsonResult executeConvertAppraisalTask(String token);
 
 
     /**
-     * 查询我的转换任务和进度
-     * @param token
-     * @return
-     */
-    JsonResult myTask(String token);
-
-    /**
      * 获取我的pdf文件信息
-     * @param token token
+     *
+     * @param token  token
      * @param report 是否是report
      * @return
      */
@@ -42,6 +38,7 @@ public interface IPdfService extends IService<Pdf> {
 
     /**
      * 通过 id 删除转换的pdf文件
+     *
      * @param token
      * @param pdfIds
      * @return

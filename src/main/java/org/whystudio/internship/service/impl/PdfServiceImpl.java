@@ -48,16 +48,6 @@ public class PdfServiceImpl extends ServiceImpl<PdfMapper, Pdf> implements IPdfS
         return execute(token, false);
     }
 
-    @Override
-    public JsonResult myTask(String token) {
-        String stuno = JWTTool.findToken(token);
-        String report = JodService.jodService.getPosition(stuno, true);
-        String appraisal = JodService.jodService.getPosition(stuno, false);
-        Map<String, String> rs = new HashMap<>();
-        rs.put("report", report);
-        rs.put("appraisal", appraisal);
-        return ControllerUtil.getSuccessResultBySelf(rs);
-    }
 
     @Override
     public JsonResult allMyPdf(String token, Boolean report) {
