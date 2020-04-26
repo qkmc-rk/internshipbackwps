@@ -59,34 +59,38 @@ public class WeblogAspect {
 
     @Around("weblog()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        LocalDateTime startTime = LocalDateTime.now();
-        Weblog weblog = new Weblog();
         Object result = joinPoint.proceed();
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        Signature signature = joinPoint.getSignature();
-        MethodSignature methodSignature = (MethodSignature) signature;
-        Method method = methodSignature.getMethod();
-        if (method.isAnnotationPresent(ApiOperation.class)) {
-            ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
-            weblog.setDescription(apiOperation.value());
-        }
-        LocalDateTime endTime = LocalDateTime.now();
-        String token = request.getHeader("token");
-        if (null != token) {
-            weblog.setAccount(JWTTool.findToken(token));
+        try {
+            LocalDateTime startTime = LocalDateTime.now();
+            Weblog weblog = new Weblog();
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = attributes.getRequest();
+            Signature signature = joinPoint.getSignature();
+            MethodSignature methodSignature = (MethodSignature) signature;
+            Method method = methodSignature.getMethod();
+            if (method.isAnnotationPresent(ApiOperation.class)) {
+                ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
+                weblog.setDescription(apiOperation.value());
+            }
+            LocalDateTime endTime = LocalDateTime.now();
+            String token = request.getHeader("token");
+            if (null != token) {
+                weblog.setAccount(JWTTool.findToken(token));
 
-        }
-        weblog.setUrl(request.getRequestURL().toString());
-        weblog.setUri(request.getRequestURI());
-        weblog.setIp(IpTool.getIpAddr(request));
-        weblog.setMethod(request.getMethod());
-        weblog.setParameter(getParameter(method, joinPoint.getArgs()));
+            }
+            weblog.setUrl(request.getRequestURL().toString());
+            weblog.setUri(request.getRequestURI());
+            weblog.setIp(IpTool.getIpAddr(request));
+            weblog.setMethod(request.getMethod());
+            weblog.setParameter(getParameter(method, joinPoint.getArgs()));
 //        weblog.setResult(null == result ? null : result.toString().substring(0,5000));
-        weblog.setSpendtime((int) Duration.between(startTime, endTime).toMillis());
-        weblog.setStarttime(startTime);
+            weblog.setSpendtime((int) Duration.between(startTime, endTime).toMillis());
+            weblog.setStarttime(startTime);
 //        log.info(String.valueOf(weblog));
-        weblogService.save(weblog);
+            weblogService.save(weblog);
+        } catch (Exception e) {
+            log.error("WebLog Error：{}", e.getMessage());
+        }
         return result;
     }
 
