@@ -153,9 +153,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Transactional
     public JsonResult evalStudentAppraisal(String token, String stuno, String corpTeacherGrade, String teacherGrade, String leaderOpinion) {
         // 数据校验
-        corpTeacherGrade = (corpTeacherGrade == null)? "": corpTeacherGrade;
-        teacherGrade = (teacherGrade == null)? "": teacherGrade;
-        leaderOpinion = (leaderOpinion == null)? "": leaderOpinion;
+        corpTeacherGrade = (corpTeacherGrade == null) ? "" : corpTeacherGrade;
+        teacherGrade = (teacherGrade == null) ? "" : teacherGrade;
+        leaderOpinion = (leaderOpinion == null) ? "" : leaderOpinion;
 
         String[] grades = {Const.NO_PASS, Const.PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
         List<String> list = Arrays.asList(grades);
@@ -235,7 +235,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     private String getSynthGrade(String corpTeacherGrade, String teacherGrade) {
         String[] grades = {Const.NO_PASS, Const.PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
         if (StringUtils.isBlank(corpTeacherGrade) || StringUtils.isBlank(teacherGrade)) {
-            return null;
+            return "";
         }
         int flag1 = Arrays.asList(grades).indexOf(corpTeacherGrade) + 1;
         int flag2 = Arrays.asList(grades).indexOf(teacherGrade) + 1;
@@ -281,7 +281,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
             report.setStage2Grade(StringUtils.isBlank(stageGrade) ? report.getStage2Grade() : stageGrade);
         }
         String totalGrade = getSynthGrade(report.getStage1Grade(), report.getStage2Grade());
-        totalGrade = (totalGrade == null)?"": totalGrade;
+        totalGrade = (totalGrade == null) ? "" : totalGrade;
         report.setTotalGrade(totalGrade);
         boolean update = reportService.lambdaUpdate().eq(Report::getStuno, stuno).update(report);
         if (update) {
