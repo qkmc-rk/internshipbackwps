@@ -146,6 +146,7 @@ public class ConverterTool {
                             pdf.setFailed(false);
                             log.info("{}上传成功,转换&上传共耗时:{} ms,URL:{}", pdfOutFile.getName(), System.currentTimeMillis() - start, url);
                         }
+                        pdfOutFile.delete();
                     }
                 } catch (Exception e) {
                     pdf.setFailed(true);
