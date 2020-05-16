@@ -39,8 +39,6 @@ import java.util.Map;
 @Component
 public class WeblogAspect {
 
-    @Autowired
-    IWeblogService weblogService;
 
     @Pointcut("execution(public * org.whystudio.internship.controller.*.*(..))")
     public void weblog() {
@@ -83,11 +81,9 @@ public class WeblogAspect {
             weblog.setIp(IpTool.getIpAddr(request));
             weblog.setMethod(request.getMethod());
             weblog.setParameter(getParameter(method, joinPoint.getArgs()));
-//        weblog.setResult(null == result ? null : result.toString().substring(0,5000));
             weblog.setSpendtime((int) Duration.between(startTime, endTime).toMillis());
             weblog.setStarttime(startTime);
-//        log.info(String.valueOf(weblog));
-            weblogService.save(weblog);
+            log.info(String.valueOf(weblog));
         } catch (Exception e) {
             log.error("WebLog Error：{}", e.getMessage());
         }
