@@ -1,26 +1,19 @@
 package org.whystudio.internship.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value = "Weblog对象", description = "接口访问日志")
 public class Weblog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
 
     /**
      * 操作描述
@@ -74,12 +67,6 @@ public class Weblog implements Serializable {
      * 请求参数
      */
     private String parameter;
-
-
-    /**
-     * 请求返回的结果
-     */
-    private String result;
 
 
 }
