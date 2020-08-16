@@ -1,5 +1,6 @@
 package org.whystudio.internship.service;
 
+import org.whystudio.internship.dto.StageDto;
 import org.whystudio.internship.entity.Stage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IStageService extends IService<Stage> {
 
+    /**
+     * 获取该生学院阶段信息
+     *
+     * @param stuno 学号
+     * @return stagedto
+     */
+    StageDto getCollegeStage(String stuno);
 }

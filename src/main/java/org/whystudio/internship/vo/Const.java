@@ -1,5 +1,7 @@
 package org.whystudio.internship.vo;
 
+import sun.security.provider.PolicySpiFile;
+
 /**
  * 该类中因为涉及到JSON序列化, 所以保留了非常量变量, 仅供序列化使用, 请不要主动调用
  */
@@ -76,5 +78,14 @@ public class Const {
     public final int _AUTH_ADMIN = 4;
     public static final int AUTH_ALL = 5;
     public final int _AUTH_ALL = 5;
+
+    // 系统各阶段开放状态
+    public static final int STAGE_ON = 1;
+    public static final int STAGE_OFF = 0;
+    public static final int STAGE_ONE = 1;
+    public static final int STAGE_TWO = 2;
+    public static final int STAGE_THREE = 3;
+    public static final int STAGE_REPORT = 1;
+    public static final int STAGE_APPRAISAL = 0;
 
 }

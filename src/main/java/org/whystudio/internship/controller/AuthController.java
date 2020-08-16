@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.whystudio.internship.annotation.Auth;
+import org.whystudio.internship.annotation.StageValidation;
 import org.whystudio.internship.service.IUserService;
 import org.whystudio.internship.util.IpTool;
 import org.whystudio.internship.util.JWTTool;
@@ -20,49 +21,49 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- *
  * 认证控制器
- *
  */
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin
-public class AuthController extends BaseController{
+public class AuthController extends BaseController {
 
     @Autowired
     IUserService userService;
 
     /**
      * 用于前端查询状态码, 方便前后端对接
+     *
      * @return
      */
     @GetMapping("/status")
     @ApiOperation(value = "状态码表", notes = "用于前端查询状态码，方便前后台对接")
-    public JsonResult statusTable(){
-        return ControllerUtil.customResult(Const.OPERATION_SUCCESS,"SUCCESS",new Const());
+    public JsonResult statusTable() {
+        return ControllerUtil.customResult(Const.OPERATION_SUCCESS, "SUCCESS", new Const());
     }
 
     @ApiOperation("验证码")
     @GetMapping("/verifycode")
-    public void getCode(HttpServletRequest request, HttpServletResponse response){
+    public void getCode(HttpServletRequest request, HttpServletResponse response) {
         verifyCodeGenerate(request, response);
     }
 
     @GetMapping("/token/expire")
     @ApiOperation(value = "判断token是否过期了")
     @Auth(role = Const.AUTH_ALL)
-    public JsonResult tokenExpire(@RequestHeader String token){
+    public JsonResult tokenExpire(@RequestHeader String token) {
         String username = JWTTool.findToken(token);
         return ControllerUtil.getTrueOrFalseResult(!(null == username));
     }
 
     @PostMapping("/token")
     @ApiOperation(value = "登录接口", notes = "传入用户名密码")
+    @StageValidation(type = Const.STAGE_REPORT,stage = Const.STAGE_ON,isLogin = true)
     public JsonResult login(@RequestParam String username,
                             @RequestParam String password,
                             @RequestParam(required = false) String verifyCode,
                             HttpServletRequest request,
-                            String type){
+                            String type) {
         String ip = IpTool.getIpAddr(request);
         //校验密码
         return userService.login(type, username, password, verifyCode, ip);
@@ -75,12 +76,12 @@ public class AuthController extends BaseController{
                                    @RequestParam String password,
                                    @RequestParam String type,
                                    @RequestParam String verifyCode,
-                                   HttpServletRequest request){
+                                   HttpServletRequest request) {
         return userService.findPassword(idcard, username, password, type, verifyCode, IpTool.getIpAddr(request));
     }
 
     // ----- private methods ------ //
-    private void verifyCodeGenerate(HttpServletRequest request, HttpServletResponse response){
+    private void verifyCodeGenerate(HttpServletRequest request, HttpServletResponse response) {
         //利用图片工具生成图片
         //第一个参数是生成的验证码，第二个参数是生成的图片
         Object[] objs = VerifyImgGenerator.createImage();
