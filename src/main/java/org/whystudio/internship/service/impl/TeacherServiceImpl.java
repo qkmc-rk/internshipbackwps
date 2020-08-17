@@ -95,7 +95,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public JsonResult myStudentReport(String token, String stuno) {
         String teachNo = JWTTool.findToken(token); // teachNo不为空
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
@@ -123,7 +123,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public JsonResult myStudentAppraisal(String token, String stuno) {
         String teachNo = JWTTool.findToken(token); // teachNo不为空
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
@@ -150,11 +150,10 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     }
 
     @Override
-    @Transactional
-    public JsonResult evalStudentAppraisal(String token, String stuno, String corpTeacherGrade, String teacherGrade, String leaderOpinion) {
+    @Transactional(rollbackFor = Exception.class)
+    public JsonResult evalStudentAppraisal(String token, String stuno, String corpTeacherGrade, String leaderOpinion) {
         // 数据校验
         corpTeacherGrade = (corpTeacherGrade == null) ? "" : corpTeacherGrade;
-        teacherGrade = (teacherGrade == null) ? "" : teacherGrade;
         leaderOpinion = (leaderOpinion == null) ? "" : leaderOpinion;
 
         String[] grades = {Const.NO_PASS, Const.PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
@@ -162,9 +161,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         if (!StringUtils.isBlank(corpTeacherGrade) && !list.contains(corpTeacherGrade)) {
             corpTeacherGrade = Const.NO_PASS;
         }
-        if (!StringUtils.isBlank(teacherGrade) && !list.contains(teacherGrade)) {
-            teacherGrade = Const.NO_PASS;
-        }
+
         String teachNo = JWTTool.findToken(token); // teachNo不为空
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         if (null == student || !student.getTeachno().equals(teachNo)) {
@@ -174,13 +171,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         if (appraisal == null) {
             return ControllerUtil.getFalseResultMsgBySelf("无法评价空的鉴定表");
         }
-        appraisal.setCorpTeacherGrade((corpTeacherGrade == null) ? appraisal.getCorpTeacherGrade() : corpTeacherGrade);
-        appraisal.setTeacherGrade((teacherGrade == null) ? appraisal.getTeacherGrade() : teacherGrade);
-        appraisal.setLeaderOpinion((leaderOpinion == null) ? appraisal.getLeaderOpinion() : leaderOpinion);
+        appraisal.setCorpTeacherGrade(corpTeacherGrade);
+        appraisal.setLeaderOpinion(leaderOpinion);
 
-        //自动 生成综合成绩
-        String synthGrade = getSynthGrade(appraisal.getCorpTeacherGrade(), appraisal.getTeacherGrade());
-        appraisal.setSynthGrade((synthGrade == null) ? appraisal.getSynthGrade() : synthGrade);
         boolean update = appraisalService.lambdaUpdate().eq(Appraisal::getStuno, stuno).update(appraisal);
         if (update) {
             //填写时间后台更新操作
@@ -190,9 +183,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
                 appraisaldate.setStuno(stuno);
             }
             appraisaldate.setCorpteacher(StringUtils.isBlank(corpTeacherGrade) ? null : LocalDateTime.now());
-            appraisaldate.setTeacher(StringUtils.isBlank(teacherGrade) ? null : LocalDateTime.now());
             appraisaldate.setLeader(StringUtils.isBlank(leaderOpinion) ? null : LocalDateTime.now());
-            appraisaldate.setSynth(StringUtils.isBlank(synthGrade) ? null : LocalDateTime.now());
             return ControllerUtil.getTrueOrFalseResult(appraisaldateService.saveOrUpdate(appraisaldate));
         } else {
             return ControllerUtil.getFalseResultMsgBySelf("更新鉴定表失败");
@@ -243,7 +234,6 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         if (flag <= 0) {
             flag = 1;// 若是输入的不是5个常量, 判定为差生
         }
-        System.out.println(flag + ", " + flag1 + "," + flag2);
         return grades[flag - 1];
     }
 
@@ -279,11 +269,15 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         } else {
             report.setStage2Comment(StringUtils.isBlank(stageComment) ? report.getStage2Comment() : stageComment);
             report.setStage2Grade(StringUtils.isBlank(stageGrade) ? report.getStage2Grade() : stageGrade);
+            appraisalService.lambdaUpdate().eq(Appraisal::getStuno, stuno).set(Appraisal::getTeacherGrade, StringUtils.isBlank(stageGrade) ? report.getStage2Grade() : stageGrade).update();
+            appraisaldateService.lambdaUpdate().eq(Appraisaldate::getStuno, stuno).set(Appraisaldate::getTeacher, StringUtils.isBlank(stageGrade) ? null : LocalDateTime.now()).update();
         }
         String totalGrade = getSynthGrade(report.getStage1Grade(), report.getStage2Grade());
         totalGrade = (totalGrade == null) ? "" : totalGrade;
         report.setTotalGrade(totalGrade);
         boolean update = reportService.lambdaUpdate().eq(Report::getStuno, stuno).update(report);
+        appraisalService.lambdaUpdate().eq(Appraisal::getStuno, stuno).set(Appraisal::getSynthGrade, totalGrade).update();
+        appraisaldateService.lambdaUpdate().eq(Appraisaldate::getStuno, stuno).set(Appraisaldate::getSynth, StringUtils.isBlank(stageGrade) ? null : LocalDateTime.now()).update();
         if (update) {
             Reportdate reportdate = reportdateService.lambdaQuery().eq(Reportdate::getStuno, stuno).one();
             if (reportdate == null) {

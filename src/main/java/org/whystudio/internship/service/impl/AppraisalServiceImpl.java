@@ -124,9 +124,8 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
         if (appraisaldate == null){
             appraisaldate = new Appraisaldate();
         }
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<>(32);
         Student student = studentMapper.selectByStuno(stuno);
-        //Teacher teacher = teacherMapper.selectByTeachno(student.getTeachno());
         params.put("${college}", student.getCollege());
         params.put("${major}", student.getMajor());
         params.put("${name}", student.getName());
@@ -134,7 +133,6 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
         params.put("${corp_name}", student.getCorp());
         params.put("${start}", student.getStarttime()==null?"":student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${end}", student.getEndtime()==null?"":student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${content}", appraisal.getContent());
         params.put("${summary}", appraisal.getSummary());
         params.put("${corp_teacher_opinion}", appraisal.getCorpTeacherOpinion());

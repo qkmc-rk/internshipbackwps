@@ -16,6 +16,7 @@ public interface ITeacherService extends IService<Teacher> {
 
     /**
      * 获取教师个人信息
+     *
      * @param token 教师token
      * @return 教师个人信息的JsonResult对象
      */
@@ -23,7 +24,8 @@ public interface ITeacherService extends IService<Teacher> {
 
     /**
      * 更新教师个人信息
-     * @param token 令牌
+     *
+     * @param token   令牌
      * @param teacher 教师的可选信息
      * @return
      */
@@ -32,6 +34,7 @@ public interface ITeacherService extends IService<Teacher> {
     /**
      * 获取教师的所有学生信息
      * 此处使用wrapper更为合适
+     *
      * @param token
      * @return
      */
@@ -39,6 +42,7 @@ public interface ITeacherService extends IService<Teacher> {
 
     /**
      * 获取我的某个学生的报告册
+     *
      * @param token
      * @param stuno 某个学生的学号
      * @return 学生的报告册信息 其中包含学生的基本信息
@@ -47,6 +51,7 @@ public interface ITeacherService extends IService<Teacher> {
 
     /**
      * 获取我的某个学生的鉴定表
+     *
      * @param token
      * @param stuno 某个学生的学号
      * @return 学生的鉴定表信息 其中包含学生的基本信息
@@ -54,18 +59,19 @@ public interface ITeacherService extends IService<Teacher> {
     JsonResult myStudentAppraisal(String token, String stuno);
 
     /**
-     *  教师对学生的鉴定表进行评分操作
+     * 教师对学生的鉴定表进行评分操作
+     *
      * @param token
      * @param stuno
      * @param corpTeacherGrade
-     * @param teacherGrade
      * @param leaderOpinion
      * @return
      */
-    JsonResult evalStudentAppraisal(String token, String stuno, String corpTeacherGrade, String teacherGrade, String leaderOpinion);
+    JsonResult evalStudentAppraisal(String token, String stuno, String corpTeacherGrade, String leaderOpinion);
 
     /**
      * 给学生报告册第一阶段评价和打分
+     *
      * @param token
      * @param stuno
      * @param stage1Comment
@@ -76,6 +82,7 @@ public interface ITeacherService extends IService<Teacher> {
 
     /**
      * 给学生报告册第二阶段评价和打分
+     *
      * @param token
      * @param stuno
      * @param stage2Comment
@@ -86,6 +93,7 @@ public interface ITeacherService extends IService<Teacher> {
 
     /**
      * 总评价
+     *
      * @param token
      * @param stuno
      * @param total_eval

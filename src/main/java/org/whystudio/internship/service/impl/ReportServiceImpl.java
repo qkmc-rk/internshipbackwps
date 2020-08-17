@@ -135,11 +135,11 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Map<String, String> getReportInfoInJodFormatByStuno(String stuno) {
         LambdaQueryWrapper<Report> lambdaQueryWrapper = Wrappers.lambdaQuery();
         List<Report> reportList = reportMapper.selectList(lambdaQueryWrapper.eq(Report::getStuno, stuno).select());
-        if (reportList == null || reportList.size() < 1){
+        if (reportList == null || reportList.size() < 1) {
             // 若是数据库中没有, 就重新生成一个空的
             Report report = new Report();
             Reportdate reportdate = new Reportdate();
@@ -154,23 +154,21 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         LambdaQueryWrapper<Reportdate> lambdaQueryWrapper1 = Wrappers.lambdaQuery();
         Reportdate reportdate = reportdateService.getOne(lambdaQueryWrapper1.eq(Reportdate::getStuno, stuno));
         // 如果默认没有时间填写, 则默认使用当前时间
-        if (reportdate == null){
+        if (reportdate == null) {
             reportdate = new Reportdate();
         }
         Student student = studentMapper.selectByStuno(stuno);
         Teacher teacher = teacherMapper.selectByTeachno(student.getTeachno());
-        Map<String, String> params = new HashMap<>();
-
+        Map<String, String> params = new HashMap<>(32);
         params.put("${college}", student.getCollege());
         params.put("${major}", student.getMajor());
         params.put("${name}", student.getName());
         params.put("${stuno}", stuno);
         params.put("${teacher}", teacher.getName());
-        params.put("${start}", (student.getStarttime()==null)?"":student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        params.put("${end}", (student.getEndtime()==null)?"":student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${start}", (student.getStarttime() == null) ? "" : student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${end}", (student.getEndtime() == null) ? "" : student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${corp_name}", student.getCorp());
         params.put("${corp_position}", student.getPosition());
-        params.put("${fill_date}", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${stage1_guide_date}", reportdate.getStage1Duration());
         params.put("${stage1_guide_way}", report.getStage1GuideWay());
         params.put("${stage1_summary}", report.getStage1Summary());
