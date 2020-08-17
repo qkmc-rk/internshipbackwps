@@ -87,5 +87,6 @@ public class Const {
     public static final int STAGE_THREE = 3;
     public static final int STAGE_REPORT = 1;
     public static final int STAGE_APPRAISAL = 0;
+    public static final int STAGE_LOGIN = 3;
 
 }

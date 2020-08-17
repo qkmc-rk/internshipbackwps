@@ -23,9 +23,6 @@ public class StageAspect {
     @Autowired
     IStageService stageService;
 
-    /**
-     * 拦截有注解的方法作为切入点
-     */
     @Pointcut("@annotation(org.whystudio.internship.annotation.StageValidation)")
     public void stagePoint() {
     }
@@ -34,7 +31,7 @@ public class StageAspect {
     public void doBefore(JoinPoint joinPoint, StageValidation stageValidation) {
         Object[] args = joinPoint.getArgs();
         String stuno;
-        if (stageValidation.isLogin()) {
+        if (stageValidation.type() == Const.STAGE_LOGIN) {
             String type = String.valueOf(args[4]);
             if (Const.STUDENT_TYPE.equals(type)) {
                 stuno = String.valueOf(joinPoint.getArgs()[0]);
@@ -59,6 +56,10 @@ public class StageAspect {
         } else if (stageValidation.type() == Const.STAGE_APPRAISAL) {
             if (stage.getAppraisalStage() != Const.STAGE_ON) {
                 throw new RRException("当前阶段未开放");
+            }
+        } else if (stageValidation.type() == Const.STAGE_LOGIN) {
+            if (stage.getReportStage() == Const.STAGE_OFF && stage.getAppraisalStage() == Const.STAGE_OFF) {
+                throw new RRException("当前系统未开放");
             }
         }
     }

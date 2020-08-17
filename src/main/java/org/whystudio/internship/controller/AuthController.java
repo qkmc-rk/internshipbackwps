@@ -58,7 +58,7 @@ public class AuthController extends BaseController {
 
     @PostMapping("/token")
     @ApiOperation(value = "登录接口", notes = "传入用户名密码")
-    @StageValidation(type = Const.STAGE_REPORT,stage = Const.STAGE_ON,isLogin = true)
+    @StageValidation(type = Const.STAGE_LOGIN)
     public JsonResult login(@RequestParam String username,
                             @RequestParam String password,
                             @RequestParam(required = false) String verifyCode,

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.whystudio.internship.annotation.Auth;
 import org.whystudio.internship.dto.StageDto;
-import org.whystudio.internship.entity.Stage;
 import org.whystudio.internship.service.IStageService;
 import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.vo.Const;

@@ -1,5 +1,7 @@
 package org.whystudio.internship.annotation;
 
+import org.whystudio.internship.vo.Const;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -7,6 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * 控制学生能否登录,控制填写阶段,检验当前阶段能否让学生填写.
+ *
  * @author Ning
  */
 @Target(value = ElementType.METHOD)
@@ -16,8 +19,6 @@ public @interface StageValidation {
     int type();
 
     /* 阶段 */
-    int stage();
+    int stage() default Const.STAGE_OFF;
 
-    /* 是否是在判断登录 */
-    boolean isLogin() default false;
 }
