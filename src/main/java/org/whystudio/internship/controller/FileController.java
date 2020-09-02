@@ -52,14 +52,14 @@ public class FileController extends BaseController {
     @GetMapping("/report")
     @ApiOperation(value = "下载报告册", notes = "学生下载自己的报告册, 后台生成pdf文件, 传到七牛云后,文件信息存到数据库file中,在返回文件信息给前台")
     @Deprecated
-    public JsonResult downloadReport(@RequestHeader String token){
+    public JsonResult downloadReport(@RequestHeader(required = false) String token){
         return null;
     }
 
     @GetMapping("/appraisal")
     @ApiOperation(value = "下载鉴定表", notes = "学生下载自己的鉴定表, 后台生成pdf文件, 传到七牛云后,文件信息存到数据库file中,在返回文件信息给前台")
     @Deprecated
-    public JsonResult downloadAppraisal(@RequestHeader String token){
+    public JsonResult downloadAppraisal(@RequestHeader(required = false) String token){
         return null;
     }
 

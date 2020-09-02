@@ -5,12 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.whystudio.internship.dto.StageDto;
 import org.whystudio.internship.entity.Stage;
 import org.whystudio.internship.entity.Student;
+import org.whystudio.internship.entity.Teacher;
 import org.whystudio.internship.exception.RRException;
 import org.whystudio.internship.mapper.StageMapper;
 import org.whystudio.internship.service.IStageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.whystudio.internship.service.IStudentService;
+import org.whystudio.internship.service.ITeacherService;
+import org.whystudio.internship.vo.Const;
 
 /**
  * <p>
@@ -25,10 +28,17 @@ public class StageServiceImpl extends ServiceImpl<StageMapper, Stage> implements
 
     @Autowired
     IStudentService studentService;
+    @Autowired
+    ITeacherService teacherService;
 
     @Override
-    public StageDto getCollegeStage(String stuno) {
-        String collegeCode = studentService.lambdaQuery().eq(Student::getStuno, stuno).one().getCollegecode();
+    public StageDto getCollegeStage(String userno) {
+        String collegeCode = null;
+        if (userno.length() == Const.STU_NO_LENGTH) {
+            collegeCode = studentService.lambdaQuery().eq(Student::getStuno, userno).one().getCollegecode();
+        } else {
+            collegeCode = teacherService.lambdaQuery().eq(Teacher::getTeachno, userno).one().getCollegecode();
+        }
         if (StringUtils.isBlank(collegeCode)) {
             throw new RRException("college not found");
         }

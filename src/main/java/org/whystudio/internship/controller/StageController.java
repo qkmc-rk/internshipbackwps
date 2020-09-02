@@ -21,12 +21,11 @@ public class StageController {
     @Autowired
     IStageService stageService;
 
-    @ApiOperation(value = "获取该生所在学院的阶段状态")
+    @ApiOperation(value = "获取学生或教师所在学院的阶段状态")
     @GetMapping("/college")
-    @Auth(role = Const.AUTH_STUDENT)
-    public JsonResult getCollegeStage(@RequestHeader String token) {
-        String stuno = JWTTool.findToken(token);
-        StageDto stageDto = stageService.getCollegeStage(stuno);
+    public JsonResult getCollegeStage(@RequestHeader(required = false) String token) {
+        String userno = JWTTool.findToken(token);
+        StageDto stageDto = stageService.getCollegeStage(userno);
         return ControllerUtil.getDataResult(stageDto);
     }
 }

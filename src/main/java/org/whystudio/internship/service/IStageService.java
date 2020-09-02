@@ -17,8 +17,8 @@ public interface IStageService extends IService<Stage> {
     /**
      * 获取该生学院阶段信息
      *
-     * @param stuno 学号
+     * @param userno 用户编号
      * @return stagedto
      */
-    StageDto getCollegeStage(String stuno);
+    StageDto getCollegeStage(String userno);
 }

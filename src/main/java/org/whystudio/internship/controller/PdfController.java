@@ -38,7 +38,7 @@ public class PdfController extends BaseController {
     @ApiOperation(value = "获取我的转换过的文件, desc排序, 不传就是获取全部, true为report, false 为appraisal")
     @GetMapping("")
     @Auth(role = Const.AUTH_STUDENT)
-    public JsonResult allMyPdf(@RequestHeader String token,
+    public JsonResult allMyPdf(@RequestHeader(required = false) String token,
                                @RequestParam(required = false) Boolean report) {
         return pdfService.allMyPdf(token, report);
     }
@@ -46,7 +46,7 @@ public class PdfController extends BaseController {
     @ApiOperation(value = "删除pdf, 支持批量删除, 传id数组")
     @DeleteMapping("")
     @Auth(role = Const.AUTH_STUDENT)
-    public JsonResult deletePdf(@RequestHeader String token,
+    public JsonResult deletePdf(@RequestHeader(required = false) String token,
                                 @RequestBody List<Long> pdfIds) {
         return pdfService.deleteByIds(token, pdfIds);
     }

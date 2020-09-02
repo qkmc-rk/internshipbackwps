@@ -62,13 +62,7 @@ public class AuthAspect {
         Integer needRole = auth.role();
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = request.getHeader("token");
-        if (null == token){
-            return ControllerUtil.getFalseResultMsgBySelf("no token in header");
-        }
         String userno = JWTTool.findToken(token);
-        if (null == userno){
-            return ControllerUtil.getFalseResultMsgBySelf("no any token info found");
-        }
         Integer realRole = findRole(userno);
         if (realRole == null){
             return ControllerUtil.getFalseResultMsgBySelf("no any role info found");

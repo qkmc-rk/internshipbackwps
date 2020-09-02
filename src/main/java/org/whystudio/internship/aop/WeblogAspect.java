@@ -70,10 +70,7 @@ public class WeblogAspect {
             }
             LocalDateTime endTime = LocalDateTime.now();
             String token = request.getHeader("token");
-            if (null != token) {
-                weblog.setAccount(JWTTool.findToken(token));
-
-            }
+            weblog.setAccount(JWTTool.findToken(token));
             weblog.setUrl(request.getRequestURL().toString());
             weblog.setUri(request.getRequestURI());
             weblog.setIp(IpTool.getIpAddr(request));

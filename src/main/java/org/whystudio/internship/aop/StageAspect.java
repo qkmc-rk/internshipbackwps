@@ -30,31 +30,20 @@ public class StageAspect {
     @Before("stagePoint() && @annotation(stageValidation)")
     public void doBefore(JoinPoint joinPoint, StageValidation stageValidation) {
         Object[] args = joinPoint.getArgs();
-        String stuno;
+        String userno;
         if (stageValidation.type() == Const.STAGE_LOGIN) {
-            String type = String.valueOf(args[4]);
-            if (Const.STUDENT_TYPE.equals(type)) {
-                stuno = String.valueOf(joinPoint.getArgs()[0]);
-            } else {
-                // 说明当前登录的是老师 无需下面的处理
-                return;
-            }
+            userno = String.valueOf(joinPoint.getArgs()[0]);
         } else {
             String token = String.valueOf(args[0]);
-            if (StringUtils.isBlank(token)) {
-                throw new RRException("invalid token");
-            }
-            stuno = JWTTool.findToken(token);
+            userno = JWTTool.findToken(token);
         }
-
-
-        StageDto stage = stageService.getCollegeStage(stuno);
+        StageDto stage = stageService.getCollegeStage(userno);
         if (stageValidation.type() == Const.STAGE_REPORT) {
             if (stage.getReportStage() < stageValidation.stage()) {
                 throw new RRException("当前阶段未开放");
             }
         } else if (stageValidation.type() == Const.STAGE_APPRAISAL) {
-            if (stage.getAppraisalStage() != Const.STAGE_ON) {
+            if (stage.getAppraisalStage() < stageValidation.stage()) {
                 throw new RRException("当前阶段未开放");
             }
         } else if (stageValidation.type() == Const.STAGE_LOGIN) {

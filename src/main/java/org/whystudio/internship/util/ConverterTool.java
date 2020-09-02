@@ -47,7 +47,7 @@ public class ConverterTool {
     /**
      * 线程池数量
      */
-    private static final int POOL_SIZE = 5;
+    private static final int POOL_SIZE = 1;
 
 
     /**

@@ -59,79 +59,70 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     @Transactional(rollbackFor = Exception.class)
     public JsonResult getReportInfo(String token) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            Report report = this.lambdaQuery().eq(Report::getStuno, stuno).one();
-            if (null == report) {
-                Report newReport = new Report();
-                Reportdate newReportdate = new Reportdate();
-                newReport.setStuno(stuno);
-                newReportdate.setStuno(stuno);
-                this.save(newReport);
-                reportdateService.save(newReportdate);
-                report = newReport;
-            }
-            Reportdate reportdate = reportdateService.lambdaQuery().eq(Reportdate::getStuno, stuno).one();
-            Map<String, Object> student = studentMapper.selectPersonalInfoByStuno(stuno);
-            Map<String, Object> resultMap = new HashMap<>();
-            resultMap.put("report", report);
-            resultMap.put("reportdate", reportdate);
-            resultMap.put("student", student);
-            return ControllerUtil.getSuccessResultBySelf(resultMap);
+        Report report = this.lambdaQuery().eq(Report::getStuno, stuno).one();
+        if (null == report) {
+            Report newReport = new Report();
+            Reportdate newReportdate = new Reportdate();
+            newReport.setStuno(stuno);
+            newReportdate.setStuno(stuno);
+            this.save(newReport);
+            reportdateService.save(newReportdate);
+            report = newReport;
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
+        Reportdate reportdate = reportdateService.lambdaQuery().eq(Reportdate::getStuno, stuno).one();
+        Map<String, Object> student = studentMapper.selectPersonalInfoByStuno(stuno);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("report", report);
+        resultMap.put("reportdate", reportdate);
+        resultMap.put("student", student);
+        return ControllerUtil.getSuccessResultBySelf(resultMap);
     }
 
 
     @Override
     public JsonResult updateReportStage1(String token, Report report) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            LambdaUpdateChainWrapper<Report> oldReportWrapper = this.lambdaUpdate();
-            if (StringUtils.isNotBlank(report.getStage1GuideWay())
-                    && StringUtils.isNotBlank(report.getStage1Summary())) {
-                oldReportWrapper.set(Report::getStage1GuideWay, report.getStage1GuideWay());
-                oldReportWrapper.set(Report::getStage1Summary, report.getStage1Summary());
-                oldReportWrapper.eq(Report::getStuno, stuno);
-                boolean updateStatus = oldReportWrapper.update();
-                if (updateStatus) {
-                    reportdateService.lambdaUpdate().set(Reportdate::getStage1Fill, LocalDateTime.now())
-                            .eq(Reportdate::getStuno, stuno).update();
-                    return ControllerUtil.getSuccessResultBySelf("更新成功");
-                } else {
-                    return ControllerUtil.getFalseResultMsgBySelf("报告册不存在，第一次使用先查询");
-                }
+        LambdaUpdateChainWrapper<Report> oldReportWrapper = this.lambdaUpdate();
+        if (StringUtils.isNotBlank(report.getStage1GuideWay())
+                && StringUtils.isNotBlank(report.getStage1Summary())) {
+            oldReportWrapper.set(Report::getStage1GuideWay, report.getStage1GuideWay());
+            oldReportWrapper.set(Report::getStage1Summary, report.getStage1Summary());
+            oldReportWrapper.eq(Report::getStuno, stuno);
+            boolean updateStatus = oldReportWrapper.update();
+            if (updateStatus) {
+                reportdateService.lambdaUpdate().set(Reportdate::getStage1Fill, LocalDateTime.now())
+                        .eq(Reportdate::getStuno, stuno).update();
+                return ControllerUtil.getSuccessResultBySelf("更新成功");
             } else {
-                return ControllerUtil.getFalseResultMsgBySelf("缺少参数 guideway 或 summary");
+                return ControllerUtil.getFalseResultMsgBySelf("报告册不存在，第一次使用先查询");
             }
+        } else {
+            return ControllerUtil.getFalseResultMsgBySelf("缺少参数 guideway 或 summary");
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
     }
 
 
     @Override
     public JsonResult updateReportStage2(String token, Report report) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            LambdaUpdateChainWrapper<Report> oldReportWrapper = this.lambdaUpdate();
-            if (StringUtils.isNotBlank(report.getStage2GuideWay())
-                    && StringUtils.isNotBlank(report.getStage2Summary())) {
-                oldReportWrapper.set(Report::getStage2GuideWay, report.getStage2GuideWay());
-                oldReportWrapper.set(Report::getStage2Summary, report.getStage2Summary());
-                oldReportWrapper.eq(Report::getStuno, stuno);
-                boolean updateStatus = oldReportWrapper.update();
-                // 为了使代码和上个方法不太一样, 就不会触发 duplicated code check.
-                if (updateStatus == true) {
-                    reportdateService.lambdaUpdate().set(Reportdate::getStage2Fill, LocalDateTime.now())
-                            .eq(Reportdate::getStuno, stuno).update();
-                    return ControllerUtil.getSuccessResultBySelf("更新成功");
-                } else {
-                    return ControllerUtil.getFalseResultMsgBySelf("报告册不存在，第一次使用先查询");
-                }
+        LambdaUpdateChainWrapper<Report> oldReportWrapper = this.lambdaUpdate();
+        if (StringUtils.isNotBlank(report.getStage2GuideWay())
+                && StringUtils.isNotBlank(report.getStage2Summary())) {
+            oldReportWrapper.set(Report::getStage2GuideWay, report.getStage2GuideWay());
+            oldReportWrapper.set(Report::getStage2Summary, report.getStage2Summary());
+            oldReportWrapper.eq(Report::getStuno, stuno);
+            boolean updateStatus = oldReportWrapper.update();
+            // 为了使代码和上个方法不太一样, 就不会触发 duplicated code check.
+            if (updateStatus == true) {
+                reportdateService.lambdaUpdate().set(Reportdate::getStage2Fill, LocalDateTime.now())
+                        .eq(Reportdate::getStuno, stuno).update();
+                return ControllerUtil.getSuccessResultBySelf("更新成功");
             } else {
-                return ControllerUtil.getFalseResultMsgBySelf("缺少参数 guideWay 或 summary");
+                return ControllerUtil.getFalseResultMsgBySelf("报告册不存在，第一次使用先查询");
             }
+        } else {
+            return ControllerUtil.getFalseResultMsgBySelf("缺少参数 guideWay 或 summary");
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
     }
 
     @Override

@@ -55,51 +55,45 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
     @Transactional(rollbackFor = Exception.class)
     public JsonResult getAppraisalInfo(String token) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            Appraisal appraisal = this.lambdaQuery().eq(Appraisal::getStuno, stuno).one();
-            if (null == appraisal) {
-                Appraisal newAppraisal = new Appraisal();
-                Appraisaldate newAppraisaldate = new Appraisaldate();
-                newAppraisal.setStuno(stuno);
-                newAppraisaldate.setStuno(stuno);
-                this.save(newAppraisal);
-                appraisaldateService.save(newAppraisaldate);
-                appraisal = newAppraisal;
-            }
-            Appraisaldate appraisaldate = appraisaldateService.lambdaQuery().eq(Appraisaldate::getStuno, stuno).one();
-            Map<String, Object> student = studentMapper.selectPersonalInfoByStuno(stuno);
-            Map<String, Object> resultMap = new HashMap<>();
-            resultMap.put("appraisal", appraisal);
-            resultMap.put("appraisaldate", appraisaldate);
-            resultMap.put("student", student);
-            return ControllerUtil.getSuccessResultBySelf(resultMap);
+        Appraisal appraisal = this.lambdaQuery().eq(Appraisal::getStuno, stuno).one();
+        if (null == appraisal) {
+            Appraisal newAppraisal = new Appraisal();
+            Appraisaldate newAppraisaldate = new Appraisaldate();
+            newAppraisal.setStuno(stuno);
+            newAppraisaldate.setStuno(stuno);
+            this.save(newAppraisal);
+            appraisaldateService.save(newAppraisaldate);
+            appraisal = newAppraisal;
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
+        Appraisaldate appraisaldate = appraisaldateService.lambdaQuery().eq(Appraisaldate::getStuno, stuno).one();
+        Map<String, Object> student = studentMapper.selectPersonalInfoByStuno(stuno);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("appraisal", appraisal);
+        resultMap.put("appraisaldate", appraisaldate);
+        resultMap.put("student", student);
+        return ControllerUtil.getSuccessResultBySelf(resultMap);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult updateAppraisalInfo(String token, Appraisal appraisal) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            String content = appraisal.getContent();
-            String summary = appraisal.getSummary();
-            String corpOpinion = appraisal.getCorpOpinion();
-            String corpTeacherOpinion = appraisal.getCorpTeacherOpinion();
-            if (StringUtils.isNotBlank(content) || StringUtils.isNotBlank(summary) ||
-                    StringUtils.isNotBlank(corpOpinion) || StringUtils.isNotBlank(corpTeacherOpinion)) {
-                appraisal.setStuno(stuno);
-                int flag = appraisalMapper.updateStudentContentByStuno(appraisal);
-                if (flag != 0) {
-                    return ControllerUtil.getSuccessResultBySelf("更新成功");
-                } else {
-                    return ControllerUtil.getFalseResultMsgBySelf("更新失败");
-                }
+        String content = appraisal.getContent();
+        String summary = appraisal.getSummary();
+        String corpOpinion = appraisal.getCorpOpinion();
+        String corpTeacherOpinion = appraisal.getCorpTeacherOpinion();
+        if (StringUtils.isNotBlank(content) || StringUtils.isNotBlank(summary) ||
+                StringUtils.isNotBlank(corpOpinion) || StringUtils.isNotBlank(corpTeacherOpinion)) {
+            appraisal.setStuno(stuno);
+            int flag = appraisalMapper.updateStudentContentByStuno(appraisal);
+            if (flag != 0) {
+                return ControllerUtil.getSuccessResultBySelf("更新成功");
             } else {
-                return ControllerUtil.getFalseResultMsgBySelf("至少包含一个参数content、summary、corpOpinion、corpTeacherOpinion");
+                return ControllerUtil.getFalseResultMsgBySelf("更新失败");
             }
+        } else {
+            return ControllerUtil.getFalseResultMsgBySelf("至少包含一个参数content、summary、corpOpinion、corpTeacherOpinion");
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
     }
 
     @Override
@@ -107,7 +101,7 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
     public Map<String, String> getAppraisalInfoInJodFormatByStuno(String stuno) {
         LambdaQueryWrapper<Appraisal> lambdaQueryWrapper = Wrappers.lambdaQuery();
         List<Appraisal> appraisalList = appraisalMapper.selectList(lambdaQueryWrapper.eq(Appraisal::getStuno, stuno).select());
-        if (appraisalList == null || appraisalList.size() < 1){
+        if (appraisalList == null || appraisalList.size() < 1) {
             Appraisal appraisal = new Appraisal();
             Appraisaldate appraisaldate = new Appraisaldate();
             appraisal.setStuno(stuno);
@@ -121,7 +115,7 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
         LambdaQueryWrapper<Appraisaldate> lambdaQueryWrapper1 = Wrappers.lambdaQuery();
         Appraisaldate appraisaldate = appraisaldateService.getOne(lambdaQueryWrapper1.eq(Appraisaldate::getStuno, stuno));
         // 如果默认没有时间填写, 则默认使用当前时间
-        if (appraisaldate == null){
+        if (appraisaldate == null) {
             appraisaldate = new Appraisaldate();
         }
         Map<String, String> params = new HashMap<>(32);
@@ -131,8 +125,8 @@ public class AppraisalServiceImpl extends ServiceImpl<AppraisalMapper, Appraisal
         params.put("${name}", student.getName());
         params.put("${stuno}", student.getStuno());
         params.put("${corp_name}", student.getCorp());
-        params.put("${start}", student.getStarttime()==null?"":student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        params.put("${end}", student.getEndtime()==null?"":student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${start}", student.getStarttime() == null ? "" : student.getStarttime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("${end}", student.getEndtime() == null ? "" : student.getEndtime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         params.put("${content}", appraisal.getContent());
         params.put("${summary}", appraisal.getSummary());
         params.put("${corp_teacher_opinion}", appraisal.getCorpTeacherOpinion());

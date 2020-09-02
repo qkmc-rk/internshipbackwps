@@ -59,33 +59,22 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Override
     public JsonResult getPersonalInfo(String token) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            Map<String, Object> resultMap = studentMapper.selectPersonalInfoByStuno(stuno);
-            if (resultMap != null && resultMap.size() != 0) {
-                return ControllerUtil.getSuccessResultBySelf(resultMap);
-            }
-        }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
+        Map<String, Object> resultMap = studentMapper.selectPersonalInfoByStuno(stuno);
+        return ControllerUtil.getDataResult(resultMap);
     }
 
 
     @Override
     public JsonResult updatePersonalInfo(String token, Student student) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            Student oldStu = studentMapper.selectByStuno(stuno);
-            if (null != oldStu) {
-                student.setStuno(stuno);
-                int flag = studentMapper.updateStudentInfo(student);
-                if (flag > 0) {
-                    return ControllerUtil.getSuccessResultBySelf("修改成功");
-                } else {
-                    return ControllerUtil.getFalseResultMsgBySelf("修改失败,可能数据不存在");
-                }
+        Student oldStu = studentMapper.selectByStuno(stuno);
+        if (null != oldStu) {
+            student.setStuno(stuno);
+            int flag = studentMapper.updateStudentInfo(student);
+            if (flag > 0) {
+                return ControllerUtil.getSuccessResultBySelf("修改成功");
             }
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
+        return ControllerUtil.getFalseResultMsgBySelf("修改失败,可能数据不存在");
     }
-
-
 }

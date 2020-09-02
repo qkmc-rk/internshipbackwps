@@ -89,4 +89,6 @@ public class Const {
     public static final int STAGE_APPRAISAL = 0;
     public static final int STAGE_LOGIN = 3;
 
+    //
+    public static final int STU_NO_LENGTH = 12;
 }

@@ -51,7 +51,7 @@ public class AuthController extends BaseController {
     @GetMapping("/token/expire")
     @ApiOperation(value = "判断token是否过期了")
     @Auth(role = Const.AUTH_ALL)
-    public JsonResult tokenExpire(@RequestHeader String token) {
+    public JsonResult tokenExpire(@RequestHeader(required = false) String token) {
         String username = JWTTool.findToken(token);
         return ControllerUtil.getTrueOrFalseResult(!(null == username));
     }

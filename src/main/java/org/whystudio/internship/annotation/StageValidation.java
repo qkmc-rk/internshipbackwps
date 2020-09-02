@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Target(value = ElementType.METHOD)
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface StageValidation {
-    /* 类型 鉴定表 or 报告册 */
+    /* 类型 鉴定表 or 报告册 or 登录 */
     int type();
 
     /* 阶段 */

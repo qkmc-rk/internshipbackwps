@@ -35,47 +35,41 @@ public class CorporationServiceImpl extends ServiceImpl<CorporationMapper, Corpo
     @Override
     public JsonResult getCorporationInfo(String token) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            Corporation corporation = this.lambdaQuery().eq(Corporation::getStuno, stuno).one();
-            if (null != corporation) {
-                return ControllerUtil.getSuccessResultBySelf(corporation);
-            } else {
-                Corporation newCorp = new Corporation();
-                newCorp.setStuno(stuno);
-                newCorp.setCreditcode("");
-                newCorp.setCorpname("");
-                newCorp.setRegcode("");
-                this.save(newCorp);
-                return ControllerUtil.getSuccessResultBySelf(newCorp);
-            }
+        Corporation corporation = this.lambdaQuery().eq(Corporation::getStuno, stuno).one();
+        if (null != corporation) {
+            return ControllerUtil.getSuccessResultBySelf(corporation);
+        } else {
+            Corporation newCorp = new Corporation();
+            newCorp.setStuno(stuno);
+            newCorp.setCreditcode("");
+            newCorp.setCorpname("");
+            newCorp.setRegcode("");
+            this.save(newCorp);
+            return ControllerUtil.getSuccessResultBySelf(newCorp);
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult updateCorporationInfo(String token, Corporation corporation) {
         String stuno = JWTTool.findToken(token);
-        if (StringUtils.isNotBlank(stuno)) {
-            Corporation oldCorp = this.lambdaQuery().eq(Corporation::getStuno, stuno).one();
-            if (null != oldCorp) {
-                corporation.setStuno(null);
-                corporation.setCreated(null);
-                corporation.setModified(null);
-                corporation.setId(null);
-                corporation.setIschecked(null);
-                EntityUtil.update(corporation, oldCorp);
-                this.updateById(corporation);
-                // 同步更新学生信息的公司名称
-                if (StringUtils.isNotBlank(corporation.getCorpname())) {
-                    studentService.lambdaUpdate().set(Student::getCorp,
-                            corporation.getCorpname()).eq(Student::getStuno, stuno).update();
-                }
-                return ControllerUtil.getSuccessResultBySelf("修改成功");
-            } else {
-                return ControllerUtil.getFalseResultMsgBySelf("记录不存在，查看后重试");
+        Corporation oldCorp = this.lambdaQuery().eq(Corporation::getStuno, stuno).one();
+        if (null != oldCorp) {
+            corporation.setStuno(null);
+            corporation.setCreated(null);
+            corporation.setModified(null);
+            corporation.setId(null);
+            corporation.setIschecked(null);
+            EntityUtil.update(corporation, oldCorp);
+            this.updateById(corporation);
+            // 同步更新学生信息的公司名称
+            if (StringUtils.isNotBlank(corporation.getCorpname())) {
+                studentService.lambdaUpdate().set(Student::getCorp,
+                        corporation.getCorpname()).eq(Student::getStuno, stuno).update();
             }
+            return ControllerUtil.getSuccessResultBySelf("修改成功");
+        } else {
+            return ControllerUtil.getFalseResultMsgBySelf("记录不存在，查看后重试");
         }
-        return ControllerUtil.getFalseResultMsgBySelf("无效的Token");
     }
 }
