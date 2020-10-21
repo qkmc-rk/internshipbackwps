@@ -54,6 +54,9 @@
             <if test="stu.endtime != null">
                 student.endtime = #{stu.endtime,jdbcType=DATE},
             </if>
+            <if test="stu.teachno != null">
+                student.teachno = #{stu.teachno,jdbcType=VARCHAR},
+            </if>
         </set>
         where student.stuno = #{stu.stuno,jdbcType=VARCHAR}
     </update>
