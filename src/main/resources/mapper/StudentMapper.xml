@@ -54,7 +54,7 @@
             <if test="stu.endtime != null">
                 student.endtime = #{stu.endtime,jdbcType=DATE},
             </if>
-            <if test="stu.teachno != null">
+            <if test="stu.teachno != null and stu.teachno != ''">
                 student.teachno = #{stu.teachno,jdbcType=VARCHAR},
             </if>
         </set>
