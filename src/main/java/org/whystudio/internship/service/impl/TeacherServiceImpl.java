@@ -252,10 +252,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         String[] grades = {Const.PASS, Const.NO_PASS, Const.USUAL, Const.GOOD, Const.PERFECT};
         List<String> list = Arrays.asList(grades);
         if (!list.contains(stageGrade) && !StringUtils.isBlank(stageGrade)) {
+            //is this your angry code?
             stageGrade = Const.NO_PASS;
         }
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
-        String teachNo = JWTTool.findToken(token); // teachNo不为空
+        String totalGrade = null;
+        // teachNo不为空
+        String teachNo = JWTTool.findToken(token);
         if (null == student || !student.getTeachno().equals(teachNo)) {
             return ControllerUtil.getFalseResultMsgBySelf("无权访问该学生信息");
         }
@@ -269,10 +272,14 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         } else {
             report.setStage2Comment(StringUtils.isBlank(stageComment) ? report.getStage2Comment() : stageComment);
             report.setStage2Grade(StringUtils.isBlank(stageGrade) ? report.getStage2Grade() : stageGrade);
-            appraisalService.lambdaUpdate().eq(Appraisal::getStuno, stuno).set(Appraisal::getTeacherGrade, StringUtils.isBlank(stageGrade) ? report.getStage2Grade() : stageGrade).update();
+            totalGrade = getSynthGrade(report.getStage1Grade(), report.getStage2Grade());
+            totalGrade = (totalGrade == null) ? "" : totalGrade;
+            //totalGrade take position of below codes.
+            /* StringUtils.isBlank(stageGrade) ? report.getStage2Grade() : stageGrade */
+            appraisalService.lambdaUpdate().eq(Appraisal::getStuno, stuno).set(Appraisal::getTeacherGrade, totalGrade).update();
             appraisaldateService.lambdaUpdate().eq(Appraisaldate::getStuno, stuno).set(Appraisaldate::getTeacher, StringUtils.isBlank(stageGrade) ? null : LocalDateTime.now()).update();
         }
-        String totalGrade = getSynthGrade(report.getStage1Grade(), report.getStage2Grade());
+        totalGrade = getSynthGrade(report.getStage1Grade(), report.getStage2Grade());
         totalGrade = (totalGrade == null) ? "" : totalGrade;
         report.setTotalGrade(totalGrade);
         boolean update = reportService.lambdaUpdate().eq(Report::getStuno, stuno).update(report);
