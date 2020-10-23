@@ -133,7 +133,7 @@ public class ConverterTool {
                             .append("_")
                             .append(System.currentTimeMillis())
                             .append(PDF_FILE_SUFFIX);
-                    // topdf
+                    // to pdf
                     result = wpsTaskList.get(threadNum - 1).toPdf(wordTempPath, pdfOutPutPath.toString(), params);
                     log.info("学号:{},是否报告册: {},转换结果: {}", stuno, isReport, result);
                     if (result) {

@@ -60,7 +60,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     public JsonResult getPersonalInfo(String token) {
         //鉴权成功的话, 这里不需要在判断token为空了, 肯定不为空
         String teachNo = JWTTool.findToken(token);
-        Teacher teacher = teacherMapper.selectByTeachno(teachNo); // unique teachNo
+        // unique teachNo
+        Teacher teacher = teacherMapper.selectByTeachno(teachNo);
         if (teacher == null) {
             return ControllerUtil.getFalseResultMsgBySelf("没有找到对应教师信息");
         } else if (!teacher.getStatus()) {
@@ -73,7 +74,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
 
     @Override
     public JsonResult updatePersonalInfo(String token, Teacher teacher) {
-        String teachNo = JWTTool.findToken(token); // not null
+        // not null
+        String teachNo = JWTTool.findToken(token);
         Teacher teacher1 = teacherMapper.selectByTeachno(teachNo);
         teacher1.setAge((teacher.getAge() == null) ? teacher1.getAge() : teacher.getAge());
         teacher1.setSex(StringUtils.isBlank(teacher.getSex()) ? teacher1.getSex() : teacher.getSex());
@@ -88,7 +90,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
 
     @Override
     public JsonResult getMyStudents(String token) {
-        String teachNo = JWTTool.findToken(token); // not null
+        // not null
+        String teachNo = JWTTool.findToken(token);
         List<Map<String, Object>> students = studentMapper.listTeachersStudentWithReportStatusAndAppraisalStatus(teachNo);
         // 已经对Student密码区域增加了@JsonIgnore
         return ControllerUtil.getDataResult(students);
@@ -97,7 +100,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult myStudentReport(String token, String stuno) {
-        String teachNo = JWTTool.findToken(token); // teachNo不为空
+        // teachNo不为空
+        String teachNo = JWTTool.findToken(token);
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         if (null == student || !student.getTeachno().equals(teachNo)) {
             return ControllerUtil.getFalseResultMsgBySelf("无权访问该学生信息");
@@ -125,7 +129,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult myStudentAppraisal(String token, String stuno) {
-        String teachNo = JWTTool.findToken(token); // teachNo不为空
+        // teachNo不为空
+        String teachNo = JWTTool.findToken(token);
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         if (null == student || !student.getTeachno().equals(teachNo)) {
             return ControllerUtil.getFalseResultMsgBySelf("你无权访问该学生信息");
@@ -161,8 +166,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         if (!StringUtils.isBlank(corpTeacherGrade) && !list.contains(corpTeacherGrade)) {
             corpTeacherGrade = Const.NO_PASS;
         }
-
-        String teachNo = JWTTool.findToken(token); // teachNo不为空
+        // teachNo不为空
+        String teachNo = JWTTool.findToken(token);
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         if (null == student || !student.getTeachno().equals(teachNo)) {
             return ControllerUtil.getFalseResultMsgBySelf("无权访问该学生信息");
@@ -173,6 +178,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         }
         appraisal.setCorpTeacherGrade(corpTeacherGrade);
         appraisal.setLeaderOpinion(leaderOpinion);
+        //here set appraisal sync grade!
+        appraisal.setSynthGrade(getSynthGrade(corpTeacherGrade,appraisal.getTeacherGrade()));
 
         boolean update = appraisalService.lambdaUpdate().eq(Appraisal::getStuno, stuno).update(appraisal);
         if (update) {
@@ -204,7 +211,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     public JsonResult evalStudentReportTotal(String token, String stuno, String total_eval) {
         // 总评阶段就不判断report是否为空了, 我觉得这个阶段肯定是一二阶段都填写了,所以有内容
-        String teachNo = JWTTool.findToken(token); // teachNo不为空
+        // teachNo不为空
+        String teachNo = JWTTool.findToken(token);
         Student student = studentService.lambdaQuery().eq(Student::getStuno, stuno).one();
         if (null == student || !student.getTeachno().equals(teachNo)) {
             return ControllerUtil.getFalseResultMsgBySelf("无权访问该学生信息");
