@@ -1,6 +1,5 @@
 package org.whystudio.internship.vo;
 
-import sun.security.provider.PolicySpiFile;
 
 /**
  * 该类中因为涉及到JSON序列化, 所以保留了非常量变量, 仅供序列化使用, 请不要主动调用
