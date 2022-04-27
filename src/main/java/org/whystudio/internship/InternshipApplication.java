@@ -10,7 +10,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Slf4j
 @SpringBootApplication
-@EnableSwagger2   // 放在有 @Configuration 注解的地方
 public class InternshipApplication implements ApplicationRunner {
     @Value("${server.port}")
     public int port;
