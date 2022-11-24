@@ -18,7 +18,7 @@ public class RRExceptionHandler {
      */
     @ExceptionHandler(RRException.class)
     public JsonResult handleRRException(RRException e) {
-        return ControllerUtil.customResult(e.getCode(), e.getMsg(), null);
+        return ControllerUtil.customResult(e.getCode(), isSqlException(e.getMsg()), null);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
@@ -37,6 +37,21 @@ public class RRExceptionHandler {
     @ExceptionHandler(Exception.class)
     public JsonResult handleException(Exception e) {
         log.error(e.getMessage(), e);
-        return ControllerUtil.getFalseResultMsgBySelf(e.getMessage());
+        return ControllerUtil.getFalseResultMsgBySelf(isSqlException(e.getMessage()));
+    }
+
+    /**
+     *  判断是否是 sql 错误, 若是不返回sql错误
+     * @param msg 错误信息
+     * @return  处理后的错误信息
+     */
+    private String isSqlException(String msg){
+        if (msg.contains("java.sql") || msg.contains("mysql") || msg.contains("XPATH") || msg.contains("xpath")
+                || msg.contains("root")  || msg.contains("password") || msg.contains("localhost") || msg.contains("internship")
+                || msg.contains("sql") ){
+            return "数据库访问异常";
+        } else {
+            return msg;
+        }
     }
 }
