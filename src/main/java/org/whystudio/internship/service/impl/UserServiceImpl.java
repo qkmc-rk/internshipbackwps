@@ -29,8 +29,14 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public JsonResult login(String type, String username, String password, String verifyCode, String ip) {
-        password = MD5Tool.md5(password);
+        //对帐号密码进行验证，防止登录时sql注入
+        boolean isUserNameException = sqlValidate(username);
+        boolean isPasswordException = sqlValidate(password);
+        if(isUserNameException || isPasswordException){
+            return ControllerUtil.customResult(Const.COMMON_ERROR, "非法字符", null);
+        }
 
+        password = MD5Tool.md5(password);
         //校验验证码
         if (!VerifyCodeTool.verify(ip, verifyCode)) {
             VerifyCodeTool.clean(ip);
@@ -50,6 +56,13 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public JsonResult findPassword(String idcard, String username, String password, String type, String verifyCode, String ip) {
+        //对帐号密码进行验证，防止登录时sql注入
+        boolean isUserNameException = sqlValidate(username);
+        boolean isPasswordException = sqlValidate(password);
+        boolean isIdCardException = sqlValidate(idcard);
+        if(isUserNameException || isPasswordException || isIdCardException){
+            return ControllerUtil.customResult(Const.COMMON_ERROR, "非法字符", null);
+        }
         //校验验证码
         if (!VerifyCodeTool.verify(ip, verifyCode)) {
             VerifyCodeTool.clean(ip);
@@ -127,5 +140,24 @@ public class UserServiceImpl implements IUserService {
             return ControllerUtil.customResult(Const.IDCARD_WRONG, "身份证号码不正确, 修改失败!", null);
         }
         return ControllerUtil.getTrueOrFalseResult(true);
+    }
+
+    /**
+     * 字符串校验, 进行过滤, 防止sql注入
+     * @param str 传入的字符串
+     * @return true:有非法字符出现   false:没有非法字符出现
+     */
+    protected static boolean sqlValidate(String str){
+        //统一转为小写
+        String s = str.toLowerCase();
+        //过滤掉的sql关键字，特殊字符前面需要加\\进行转义
+        String badStr =
+                "select|update|and|or|delete|insert|truncate|char|into|substr|ascii|declare|exec|count|master|into|drop|execute|table|"+
+                        "char|declare|sitename|xp_cmdshell|like|from|grant|use|group_concat|column_name|" +
+                        "information_schema.columns|table_schema|union|where|order|by|" +
+                        "'\\*|\\;|\\-|\\--|\\+|\\,|\\//|\\/|\\%|\\#";
+        //使用正则表达式进行匹配
+        boolean matches = s.matches(badStr);
+        return matches;
     }
 }
