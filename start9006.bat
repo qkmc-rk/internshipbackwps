@@ -1,1 +1,1 @@
-java -jar C:\internship\internshipback\build\libs\internship-0.0.1-SNAPSHOT.jar --server.port=9006
+java -jar C:\internship\internshipback\build\libs\internship-0.0.1-SNAPSHOT.jar --server.port=9006 --spring.profiles.active=release
