@@ -46,8 +46,8 @@ public class StudentController extends BaseController {
     public JsonResult personalInfo(@RequestHeader(required = false) String token) {
         try {
             String rs= PropertyEncryptUtil.encrypt("miao", 123456L);
-            System.out.println("加密信息：miao,123456");
-            System.out.println("加密后：" + rs);
+//            System.out.println("加密信息：miao,123456");
+//            System.out.println("加密后：" + rs);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

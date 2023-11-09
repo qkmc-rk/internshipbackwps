@@ -64,12 +64,12 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         String stuno = JWTTool.findToken(token);
         Map<String, Object> resultMap = studentMapper.selectPersonalInfoByStuno(stuno);
         try {
-            System.out.println("=============");
-            System.out.println(resultMap);
+//            System.out.println("=============");
+//            System.out.println(resultMap);
             long timestamp = new Date().getTime();
             resultMap = PropertyEncryptUtil.encryptFields(resultMap, timestamp);
             resultMap.put("timestamp", timestamp);
-            System.out.println(resultMap);
+//            System.out.println(resultMap);
             return ControllerUtil.getDataResult(resultMap);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
@@ -83,8 +83,8 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         try {
             //在此处先进行解密
             student = new PropertyEncryptUtil().hotDecryptFields(student, timestamp);
-            System.out.println("解密后的student:");
-            System.out.println(student);
+//            System.out.println("解密后的student:");
+//            System.out.println(student);
             //进行正常业务
             String stuno = JWTTool.findToken(token);
             Student oldStu = studentMapper.selectByStuno(stuno);

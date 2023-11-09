@@ -40,18 +40,14 @@ public class PropertyEncryptUtil {
             //"算法/模式/补码方式"NoPadding PkcsPadding
             Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
             int blockSize = cipher.getBlockSize();
-
             byte[] dataBytes = inputStr.getBytes();
             int plaintextLength = dataBytes.length;
             if (plaintextLength % blockSize != 0) {
                 plaintextLength = plaintextLength + (blockSize - (plaintextLength % blockSize));
             }
-
             byte[] plaintext = new byte[plaintextLength];
             System.arraycopy(dataBytes, 0, plaintext, 0, dataBytes.length);
-
             cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
-
             byte[] encrypted = cipher.doFinal(plaintext);
             return new Base64().encodeToString(encrypted);
         } catch (Exception e) {
@@ -70,12 +66,9 @@ public class PropertyEncryptUtil {
         // 用得到的字符串作为AES的key
         byte[] key = secondDigestStr.getBytes(StandardCharsets.UTF_8);
         byte[] iv = key;
-
         try {
             byte[] encrypted = new Base64().decode(encryptStr);
-
             Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-
             cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
             byte[] original = cipher.doFinal(encrypted);
             return new String(original).trim();
@@ -118,10 +111,10 @@ public class PropertyEncryptUtil {
             if (field.getType() == String.class) {
                 field.setAccessible(true);
                 String encryptedValue = (String) field.get(student);
-                System.out.println("字段的值：" + encryptedValue);
+//                System.out.println("字段的值：" + encryptedValue);
                 if (encryptedValue != null && !encryptedValue.isEmpty()) {
                     String decryptedValue = decrypt(encryptedValue, timestamp);
-                    System.out.println("解密后字段的值：" + encryptedValue);
+//                    System.out.println("解密后字段的值：" + encryptedValue);
                     field.set(student, decryptedValue);
                 }
             }
