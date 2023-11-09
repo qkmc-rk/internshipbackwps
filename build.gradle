@@ -50,6 +50,10 @@ dependencies {
     //低于4.3版本的httpClient报错java.lang.NoClassDefFoundError
     implementation 'org.apache.httpcomponents:httpclient:4.3.3'
 
+    // hutool is niubi
+    implementation 'cn.hutool:hutool-all:5.7.6'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
+
     //七牛云
     compile group: 'com.qiniu', name: 'qiniu-java-sdk', version: '7.2.28'
     compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.3.1.tmp'

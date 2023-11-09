@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.Transient;
 
 /**
  * <p>
@@ -98,5 +99,4 @@ public class Student implements Serializable {
 
     @ApiModelProperty(value = "导师工号")
     private String teachno = "";
-
 }

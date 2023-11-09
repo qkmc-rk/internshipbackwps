@@ -33,6 +33,6 @@ public interface IStudentService extends IService<Student> {
      * @param student :
      * @return: org.whystudio.internship.vo.JsonResult
      */
-    JsonResult updatePersonalInfo(String token, Student student);
+    JsonResult updatePersonalInfo(String token, Student student, String timestamp);
 
 }

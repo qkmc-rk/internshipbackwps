@@ -7,8 +7,12 @@ import org.whystudio.internship.annotation.Auth;
 import org.whystudio.internship.annotation.StageValidation;
 import org.whystudio.internship.entity.*;
 import org.whystudio.internship.service.*;
+import org.whystudio.internship.util.PropertyEncryptUtil;
 import org.whystudio.internship.vo.Const;
 import org.whystudio.internship.vo.JsonResult;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 /**
  * 学生相关操作控制器
@@ -40,14 +44,21 @@ public class StudentController extends BaseController {
     @ApiOperation(value = "查询个人信息", notes = "将实习开始结束时间、职位、公司等信息放到个人信息中了,返回时去除密码等敏感字段")
     @Auth(role = Const.AUTH_STUDENT)
     public JsonResult personalInfo(@RequestHeader(required = false) String token) {
+        try {
+            String rs= PropertyEncryptUtil.encrypt("miao", 123456L);
+            System.out.println("加密信息：miao,123456");
+            System.out.println("加密后：" + rs);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
         return studentService.getPersonalInfo(token);
     }
 
     @PostMapping("/info")
     @ApiOperation(value = "修改个人信息", notes = "传入需要更新的字段(age,phone,qq,wechat,potision)")
     @Auth(role = Const.AUTH_STUDENT)
-    public JsonResult modifyPersonalInfo(@RequestHeader(required = false) String token, @RequestBody Student student) {
-        return studentService.updatePersonalInfo(token, student);
+    public JsonResult modifyPersonalInfo(@RequestHeader String timestamp, @RequestHeader(required = false) String token, @RequestBody Student student) {
+        return studentService.updatePersonalInfo(token, student, timestamp);
     }
 
     @GetMapping("/corp")

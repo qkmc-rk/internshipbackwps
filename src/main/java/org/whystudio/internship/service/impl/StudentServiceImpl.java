@@ -20,10 +20,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.whystudio.internship.util.EntityUtil;
 import org.whystudio.internship.util.JWTTool;
+import org.whystudio.internship.util.PropertyEncryptUtil;
 import org.whystudio.internship.vo.Const;
 import org.whystudio.internship.vo.JsonResult;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,21 +63,44 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     public JsonResult getPersonalInfo(String token) {
         String stuno = JWTTool.findToken(token);
         Map<String, Object> resultMap = studentMapper.selectPersonalInfoByStuno(stuno);
-        return ControllerUtil.getDataResult(resultMap);
+        try {
+            System.out.println("=============");
+            System.out.println(resultMap);
+            long timestamp = new Date().getTime();
+            resultMap = PropertyEncryptUtil.encryptFields(resultMap, timestamp);
+            resultMap.put("timestamp", timestamp);
+            System.out.println(resultMap);
+            return ControllerUtil.getDataResult(resultMap);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 
     @Override
-    public JsonResult updatePersonalInfo(String token, Student student) {
-        String stuno = JWTTool.findToken(token);
-        Student oldStu = studentMapper.selectByStuno(stuno);
-        if (null != oldStu) {
-            student.setStuno(stuno);
-            int flag = studentMapper.updateStudentInfo(student);
-            if (flag > 0) {
-                return ControllerUtil.getSuccessResultBySelf("修改成功");
+    public JsonResult updatePersonalInfo(String token, Student student, String timestamp) {
+        try {
+            //在此处先进行解密
+            student = new PropertyEncryptUtil().hotDecryptFields(student, timestamp);
+            System.out.println("解密后的student:");
+            System.out.println(student);
+            //进行正常业务
+            String stuno = JWTTool.findToken(token);
+            Student oldStu = studentMapper.selectByStuno(stuno);
+            if (null != oldStu) {
+                student.setStuno(stuno);
+                int flag = studentMapper.updateStudentInfo(student);
+                if (flag > 0) {
+                    return ControllerUtil.getSuccessResultBySelf("修改成功");
+                }
             }
+            return ControllerUtil.getFalseResultMsgBySelf("修改失败,可能数据不存在");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResult<String> rs = new JsonResult<>();
+            rs.setData(e.getMessage());
+            return rs;
         }
-        return ControllerUtil.getFalseResultMsgBySelf("修改失败,可能数据不存在");
     }
 }
