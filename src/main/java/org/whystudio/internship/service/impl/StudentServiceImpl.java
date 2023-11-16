@@ -77,7 +77,6 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
     }
 
-
     @Override
     public JsonResult updatePersonalInfo(String token, Student student, String timestamp) {
         try {
