@@ -21,7 +21,7 @@ public interface IUserService {
      * @param password 密码
      * @param type 类型 student teacher
      * @param verifyCode 验证码
-     * @param ipAddr
+     * @param ip
      * @return
      */
     JsonResult findPassword(String idcard, String username, String password, String type, String verifyCode, String ip);

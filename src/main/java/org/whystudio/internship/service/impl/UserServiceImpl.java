@@ -10,6 +10,7 @@ import org.whystudio.internship.mapper.TeacherMapper;
 import org.whystudio.internship.service.IUserService;
 import org.whystudio.internship.util.JWTTool;
 import org.whystudio.internship.util.MD5Tool;
+import org.whystudio.internship.util.PasswordValidateUtil;
 import org.whystudio.internship.util.VerifyCodeTool;
 import org.whystudio.internship.vo.Const;
 import org.whystudio.internship.vo.JsonResult;
@@ -35,14 +36,20 @@ public class UserServiceImpl implements IUserService {
         if(isUserNameException || isPasswordException){
             return ControllerUtil.customResult(Const.COMMON_ERROR, "非法字符", null);
         }
-
-        password = MD5Tool.md5(password);
         //校验验证码
         if (!VerifyCodeTool.verify(ip, verifyCode)) {
             VerifyCodeTool.clean(ip);
             return ControllerUtil.customResult(Const.VERIFYCODE_WRONG, "验证码错误", null);
         }
         VerifyCodeTool.clean(ip);
+
+        //校验密码必须包含大小写字母和数字
+        if(!PasswordValidateUtil.validatePassword(password)){
+            //密码校验不通过
+            return ControllerUtil.customResult(Const.COMMON_ERROR, "密码校验不通过,必须大于8位且包含大小写字母和数字，请修改密码后登录", null);
+        }
+        password = MD5Tool.md5(password);
+
         if (type.equals(Const.TEACHER_TYPE)) {
             Teacher teacher = teacherMapper.selectByTeachno(username);
             return loginCommon(teacher, password);
@@ -69,6 +76,13 @@ public class UserServiceImpl implements IUserService {
             return ControllerUtil.customResult(Const.VERIFYCODE_WRONG, "验证码错误", null);
         }
         VerifyCodeTool.clean(ip);
+
+        // 校验密码必须包含大小写字母和数字必须大于8位
+        if(!PasswordValidateUtil.validatePassword(password)){
+            //密码校验不通过
+            return ControllerUtil.customResult(Const.COMMON_ERROR, "密码校验不通过,必须大于8位且包含大小写字母和数字，请重新输入密码", null);
+        }
+
         if (type.equals(Const.TEACHER_TYPE)) {
             Teacher teacher = teacherMapper.selectByTeachno(username);
             return changePassword(teacher, password, idcard);
